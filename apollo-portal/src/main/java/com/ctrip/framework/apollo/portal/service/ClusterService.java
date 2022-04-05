@@ -43,11 +43,11 @@ public class ClusterService {
   }
 
   public ClusterDTO createCluster(Env env, ClusterDTO cluster) {
-    if (!clusterAPI.isClusterUnique(cluster.getAppId(), env, cluster.getName())) {
+    if (!clusterAPI.isClusterUnique(cluster.getAppId(), env, cluster.getName())) { // 根据 appId 和 name 校验 Cluster 的唯一性
       throw new BadRequestException(String.format("cluster %s already exists.", cluster.getName()));
     }
-    ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
-
+    ClusterDTO clusterDTO = clusterAPI.create(env, cluster); // 创建 Cluster 到 Admin Service
+    // Tracer 日志
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());
 
     return clusterDTO;

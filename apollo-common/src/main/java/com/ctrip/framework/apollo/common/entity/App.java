@@ -29,12 +29,12 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "App")
 @SQLDelete(sql = "Update App set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Where(clause = "isDeleted = 0") // App 的逻辑删除
 public class App extends BaseEntity {
 
   @NotBlank(message = "Name cannot be blank")
   @Column(name = "Name", nullable = false)
-  private String name;
+  private String name; // App 名
 
   @NotBlank(message = "AppId cannot be blank")
   @Pattern(
@@ -42,21 +42,21 @@ public class App extends BaseEntity {
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "OrgId", nullable = false)
-  private String orgId;
+  private String orgId; // 部门编号
 
   @Column(name = "OrgName", nullable = false)
-  private String orgName;
+  private String orgName; // 部门名，冗余字段
 
   @NotBlank(message = "OwnerName cannot be blank")
   @Column(name = "OwnerName", nullable = false)
-  private String ownerName;
+  private String ownerName; // 拥有人名，例如在 Portal 系统中，使用系统的管理员账号，即 UserPO.username 字段
 
   @NotBlank(message = "OwnerEmail cannot be blank")
   @Column(name = "OwnerEmail", nullable = false)
-  private String ownerEmail;
+  private String ownerEmail; // 拥有人邮箱，冗余字段
 
   public String getAppId() {
     return appId;

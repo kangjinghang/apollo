@@ -98,15 +98,15 @@ public class NamespaceService {
 
 
   public NamespaceDTO createNamespace(Env env, NamespaceDTO namespace) {
-    if (StringUtils.isEmpty(namespace.getDataChangeCreatedBy())) {
+    if (StringUtils.isEmpty(namespace.getDataChangeCreatedBy())) { // 设置 NamespaceDTO 的创建和修改人为当前管理员
       namespace.setDataChangeCreatedBy(userInfoHolder.getUser().getUserId());
     }
 
     if (StringUtils.isEmpty(namespace.getDataChangeLastModifiedBy())) {
       namespace.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
     }
-    NamespaceDTO createdNamespace = namespaceAPI.createNamespace(env, namespace);
-
+    NamespaceDTO createdNamespace = namespaceAPI.createNamespace(env, namespace); // 创建 Namespace 到 Admin Service
+    // Tracer 日志
     Tracer.logEvent(TracerEventType.CREATE_NAMESPACE,
         String.format("%s+%s+%s+%s", namespace.getAppId(), env, namespace.getClusterName(),
             namespace.getNamespaceName()));

@@ -34,28 +34,28 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class ReleaseHistory extends BaseEntity {
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "ClusterName", nullable = false)
-  private String clusterName;
+  private String clusterName; // Cluster 名字
 
   @Column(name = "NamespaceName", nullable = false)
-  private String namespaceName;
+  private String namespaceName; // Namespace 名字
 
   @Column(name = "BranchName", nullable = false)
-  private String branchName;
+  private String branchName; // Branch 名。主干，使用 Cluster 名字。分支，使用子 Cluster 名字
 
   @Column(name = "ReleaseId")
-  private long releaseId;
+  private long releaseId; // Release 编号
 
   @Column(name = "PreviousReleaseId")
-  private long previousReleaseId;
+  private long previousReleaseId; // 上一次 Release 编号
 
   @Column(name = "Operation")
-  private int operation;
+  private int operation; // 操作类型 {@link com.ctrip.framework.apollo.common.constants.ReleaseOperation}
 
   @Column(name = "OperationContext", nullable = false)
-  private String operationContext;
+  private String operationContext; // 操作 Context
 
   public String getAppId() {
     return appId;

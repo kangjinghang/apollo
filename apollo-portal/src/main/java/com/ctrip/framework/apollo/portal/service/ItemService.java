@@ -102,24 +102,24 @@ public class ItemService {
     }
 
     String configText = model.getConfigText();
-
+    // 获得对应格式的 ConfigTextResolver 对象
     ConfigTextResolver resolver =
         model.getFormat() == ConfigFileFormat.Properties ? propertyResolver : fileTextResolver;
-
+    // 解析成 ItemChangeSets
     ItemChangeSets changeSets = resolver.resolve(namespaceId, configText,
         itemAPI.findItems(appId, env, clusterName, namespaceName));
     if (changeSets.isEmpty()) {
       return;
     }
-
+    // 设置修改人为当前管理员
     String operator = model.getOperator();
     if (StringUtils.isBlank(operator)) {
       operator = userInfoHolder.getUser().getUserId();
     }
     changeSets.setDataChangeLastModifiedBy(operator);
-
+    // 调用 Admin Service API ，批量更新 Item 们
     updateItems(appId, env, clusterName, namespaceName, changeSets);
-
+    // Tracer 日志
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE_BY_TEXT,
         String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
@@ -131,13 +131,13 @@ public class ItemService {
 
 
   public ItemDTO createItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
-    NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
+    NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName); // 校验 NamespaceDTO 是否存在。若不存在，抛出 BadRequestException 异常
     if (namespace == null) {
       throw new BadRequestException(
           "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
     }
-    item.setNamespaceId(namespace.getId());
-
+    item.setNamespaceId(namespace.getId()); // 设置 ItemDTO 的 namespaceId
+    // 保存 Item 到 Admin Service
     ItemDTO itemDTO = itemAPI.createItem(appId, env, clusterName, namespaceName, item);
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
     return itemDTO;

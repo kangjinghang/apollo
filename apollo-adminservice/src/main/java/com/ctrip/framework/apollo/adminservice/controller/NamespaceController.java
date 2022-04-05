@@ -46,19 +46,19 @@ public class NamespaceController {
   public NamespaceController(final NamespaceService namespaceService) {
     this.namespaceService = namespaceService;
   }
-
+  // 创建 Namespace
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces")
   public NamespaceDTO create(@PathVariable("appId") String appId,
                              @PathVariable("clusterName") String clusterName,
-                             @Valid @RequestBody NamespaceDTO dto) {
-    Namespace entity = BeanUtils.transform(Namespace.class, dto);
+                             @Valid @RequestBody NamespaceDTO dto) { // 校验 NamespaceDTO 的 namespaceName 格式正确。
+    Namespace entity = BeanUtils.transform(Namespace.class, dto); // 将 NamespaceDTO 转换成 Namespace 对象
     Namespace managedEntity = namespaceService.findOne(appId, clusterName, entity.getNamespaceName());
-    if (managedEntity != null) {
+    if (managedEntity != null) { // 判断 name 在 Cluster 下是否已经存在对应的 Namespace 对象。若已经存在，抛出 BadRequestException 异常
       throw new BadRequestException("namespace already exist.");
     }
-
+    // 保存 Namespace 对象
     entity = namespaceService.save(entity);
-
+    // 将保存的 Namespace 对象转换成 NamespaceDTO
     return BeanUtils.transform(NamespaceDTO.class, entity);
   }
 

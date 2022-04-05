@@ -35,13 +35,13 @@ import javax.persistence.Table;
 public class Cluster extends BaseEntity implements Comparable<Cluster> {
 
   @Column(name = "Name", nullable = false)
-  private String name;
+  private String name; // 名字
 
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "ParentClusterId", nullable = false)
-  private long parentClusterId;
+  private long parentClusterId; // 父 Cluster 编号
 
   public String getAppId() {
     return appId;

@@ -37,7 +37,7 @@ public class CommitService {
   @Transactional
   public Commit save(Commit commit){
     commit.setId(0);//protection
-    return commitRepository.save(commit);
+    return commitRepository.save(commit); // 保存 Commit
   }
 
   public List<Commit> find(String appId, String clusterName, String namespaceName, Pageable page){

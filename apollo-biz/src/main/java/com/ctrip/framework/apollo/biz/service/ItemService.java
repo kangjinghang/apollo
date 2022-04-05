@@ -147,19 +147,19 @@ public class ItemService {
 
   @Transactional
   public Item save(Item entity) {
-    checkItemKeyLength(entity.getKey());
-    checkItemValueLength(entity.getNamespaceId(), entity.getValue());
+    checkItemKeyLength(entity.getKey()); // 校验 Key 长度
+    checkItemValueLength(entity.getNamespaceId(), entity.getValue()); // 校验 Value 长度
 
     entity.setId(0);//protection
-
+    // 设置 Item 的行号，以 Namespace 下的 Item 最大行号 + 1 。
     if (entity.getLineNum() == 0) {
       Item lastItem = findLastOne(entity.getNamespaceId());
       int lineNum = lastItem == null ? 1 : lastItem.getLineNum() + 1;
       entity.setLineNum(lineNum);
     }
-
+    // 保存 Item
     Item item = itemRepository.save(entity);
-
+    // 记录 Audit 到数据库中
     auditService.audit(Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT,
                        item.getDataChangeCreatedBy());
 

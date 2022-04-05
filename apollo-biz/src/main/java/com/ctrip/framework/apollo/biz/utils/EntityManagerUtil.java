@@ -37,11 +37,11 @@ public class EntityManagerUtil extends EntityManagerFactoryAccessor {
    */
   public void closeEntityManager() {
     EntityManagerHolder emHolder = (EntityManagerHolder)
-        TransactionSynchronizationManager.getResource(getEntityManagerFactory());
+        TransactionSynchronizationManager.getResource(getEntityManagerFactory()); // 获得 EntityManagerHolder 对象
     if (emHolder == null) {
       return;
     }
     logger.debug("Closing JPA EntityManager in EntityManagerUtil");
-    EntityManagerFactoryUtils.closeEntityManager(emHolder.getEntityManager());
+    EntityManagerFactoryUtils.closeEntityManager(emHolder.getEntityManager()); // 关闭 EntityManager
   }
 }

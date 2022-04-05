@@ -50,28 +50,28 @@ public class ReleaseMessageScanner implements InitializingBean {
   private BizConfig bizConfig;
   @Autowired
   private ReleaseMessageRepository releaseMessageRepository;
-  private int databaseScanInterval;
-  private final List<ReleaseMessageListener> listeners;
-  private final ScheduledExecutorService executorService;
+  private int databaseScanInterval; // 从 DB 中扫描 ReleaseMessage 表的频率，单位：毫秒
+  private final List<ReleaseMessageListener> listeners; // 监听器数组
+  private final ScheduledExecutorService executorService; // 定时任务服务
   private final Map<Long, Integer> missingReleaseMessages; // missing release message id => age counter
-  private long maxIdScanned;
+  private long maxIdScanned; // 最后扫描到的 ReleaseMessage 的编号
 
   public ReleaseMessageScanner() {
-    listeners = Lists.newCopyOnWriteArrayList();
+    listeners = Lists.newCopyOnWriteArrayList(); // 创建监听器数组
     executorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory
-        .create("ReleaseMessageScanner", true));
+        .create("ReleaseMessageScanner", true)); //  创建 ScheduledExecutorService 对象
     missingReleaseMessages = Maps.newHashMap();
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    databaseScanInterval = bizConfig.releaseMessageScanIntervalInMilli();
-    maxIdScanned = loadLargestMessageId();
-    executorService.scheduleWithFixedDelay(() -> {
+    databaseScanInterval = bizConfig.releaseMessageScanIntervalInMilli(); //  从 ServerConfig 中获得频率
+    maxIdScanned = loadLargestMessageId(); // 获得最大的 ReleaseMessage 的编号
+    executorService.scheduleWithFixedDelay(() -> { // 创建从 DB 中扫描 ReleaseMessage 表的定时任务
       Transaction transaction = Tracer.newTransaction("Apollo.ReleaseMessageScanner", "scanMessage");
       try {
         scanMissingMessages();
-        scanMessages();
+        scanMessages();  // 从 DB 中，扫描 ReleaseMessage 们
         transaction.setStatus(Transaction.SUCCESS);
       } catch (Throwable ex) {
         transaction.setStatus(ex);
@@ -96,7 +96,7 @@ public class ReleaseMessageScanner implements InitializingBean {
   /**
    * Scan messages, continue scanning until there is no more messages
    */
-  private void scanMessages() {
+  private void scanMessages() { // 循环扫描消息，直到没有新的 ReleaseMessage 为止
     boolean hasMoreMessages = true;
     while (hasMoreMessages && !Thread.currentThread().isInterrupted()) {
       hasMoreMessages = scanAndSendMessages();
@@ -109,21 +109,21 @@ public class ReleaseMessageScanner implements InitializingBean {
    * @return whether there are more messages
    */
   private boolean scanAndSendMessages() {
-    //current batch is 500
+    //current batch is 500 获得大于 maxIdScanned 的 500 条 ReleaseMessage 记录，按照 id 升序
     List<ReleaseMessage> releaseMessages =
         releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(maxIdScanned);
     if (CollectionUtils.isEmpty(releaseMessages)) {
       return false;
     }
-    fireMessageScanned(releaseMessages);
+    fireMessageScanned(releaseMessages); // 触发监听器
     int messageScanned = releaseMessages.size();
-    long newMaxIdScanned = releaseMessages.get(messageScanned - 1).getId();
+    long newMaxIdScanned = releaseMessages.get(messageScanned - 1).getId(); // 获得新的 maxIdScanned ，取最后一条记录
     // check id gaps, possible reasons are release message not committed yet or already rolled back
     if (newMaxIdScanned - maxIdScanned > messageScanned) {
       recordMissingReleaseMessageIds(releaseMessages, maxIdScanned);
     }
     maxIdScanned = newMaxIdScanned;
-    return messageScanned == 500;
+    return messageScanned == 500;  // 若拉取不足 500 条，说明无新消息了
   }
 
   private void scanMissingMessages() {
@@ -176,10 +176,10 @@ public class ReleaseMessageScanner implements InitializingBean {
    * @param messages
    */
   private void fireMessageScanned(Iterable<ReleaseMessage> messages) {
-    for (ReleaseMessage message : messages) {
-      for (ReleaseMessageListener listener : listeners) {
+    for (ReleaseMessage message : messages) {  // 循环 ReleaseMessage
+      for (ReleaseMessageListener listener : listeners) { // 循环 ReleaseMessageListener
         try {
-          listener.handleMessage(message, Topics.APOLLO_RELEASE_TOPIC);
+          listener.handleMessage(message, Topics.APOLLO_RELEASE_TOPIC); // 触发监听器
         } catch (Throwable ex) {
           Tracer.logError(ex);
           logger.error("Failed to invoke message listener {}", listener.getClass(), ex);

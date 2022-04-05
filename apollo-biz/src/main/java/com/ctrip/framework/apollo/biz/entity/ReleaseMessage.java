@@ -37,13 +37,13 @@ public class ReleaseMessage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
-
+  private long id; // 编号
+  // 例如：apollo-learning+default+application
   @Column(name = "Message", nullable = false)
-  private String message;
+  private String message; // 消息内容，通过 {@link com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator#generate(String, String, String)} 方法生成
 
   @Column(name = "DataChange_LastTime")
-  private Date dataChangeLastModifiedTime;
+  private Date dataChangeLastModifiedTime; // 最后更新时间
 
   @PrePersist
   protected void prePersist() {

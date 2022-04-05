@@ -67,17 +67,17 @@ public class ItemController {
   public ItemDTO create(@PathVariable("appId") String appId,
                         @PathVariable("clusterName") String clusterName,
                         @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
-    Item entity = BeanUtils.transform(Item.class, dto);
+    Item entity = BeanUtils.transform(Item.class, dto); // 将 ItemDTO 转换成 Item 对象
 
-    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
+    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder(); // 创建 ConfigChangeContentBuilder 对象
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
-    if (managedEntity != null) {
+    if (managedEntity != null) { // 校验对应的 Item 是否已经存在。若是，抛出 BadRequestException 异常
       throw new BadRequestException("item already exists");
     }
-    entity = itemService.save(entity);
-    builder.createItem(entity);
-    dto = BeanUtils.transform(ItemDTO.class, entity);
-
+    entity = itemService.save(entity); // 保存 Item 对象
+    builder.createItem(entity); // 添加到 ConfigChangeContentBuilder 中
+    dto = BeanUtils.transform(ItemDTO.class, entity); // 将 Item 转换成 ItemDTO 对象
+    // 创建 Commit 对象
     Commit commit = new Commit();
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
@@ -85,7 +85,7 @@ public class ItemController {
     commit.setChangeSets(builder.build());
     commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
     commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
-    commitService.save(commit);
+    commitService.save(commit); // 保存 Commit 对象
 
     return dto;
   }

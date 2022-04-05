@@ -30,7 +30,7 @@ import javax.persistence.Table;
 public class NamespaceLock extends BaseEntity{
 
   @Column(name = "NamespaceId")
-  private long namespaceId;
+  private long namespaceId; // Namespace 编号 {@link Namespace}，唯一索引
 
   public long getNamespaceId() {
     return namespaceId;

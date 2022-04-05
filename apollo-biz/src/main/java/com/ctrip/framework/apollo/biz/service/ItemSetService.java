@@ -66,7 +66,7 @@ public class ItemSetService {
 
     String operator = changeSet.getDataChangeLastModifiedBy();
     ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
-
+    // 保存 Item 们
     if (!CollectionUtils.isEmpty(changeSet.getCreateItems())) {
       for (ItemDTO item : changeSet.getCreateItems()) {
         if (item.getNamespaceId() != namespace.getId()) {
@@ -76,12 +76,12 @@ public class ItemSetService {
         Item entity = BeanUtils.transform(Item.class, item);
         entity.setDataChangeCreatedBy(operator);
         entity.setDataChangeLastModifiedBy(operator);
-        Item createdItem = itemService.save(entity);
-        configChangeContentBuilder.createItem(createdItem);
+        Item createdItem = itemService.save(entity); // 保存 Item
+        configChangeContentBuilder.createItem(createdItem); // 添加到 ConfigChangeContentBuilder 中
       }
-      auditService.audit("ItemSet", null, Audit.OP.INSERT, operator);
+      auditService.audit("ItemSet", null, Audit.OP.INSERT, operator); // 记录 Audit 到数据库中
     }
-
+    // 更新 Item 们
     if (!CollectionUtils.isEmpty(changeSet.getUpdateItems())) {
       for (ItemDTO item : changeSet.getUpdateItems()) {
         Item entity = BeanUtils.transform(Item.class, item);
@@ -101,25 +101,25 @@ public class ItemSetService {
         managedItem.setLineNum(entity.getLineNum());
         managedItem.setDataChangeLastModifiedBy(operator);
 
-        Item updatedItem = itemService.update(managedItem);
-        configChangeContentBuilder.updateItem(beforeUpdateItem, updatedItem);
+        Item updatedItem = itemService.update(managedItem); // 更新 Item
+        configChangeContentBuilder.updateItem(beforeUpdateItem, updatedItem); // 添加到 ConfigChangeContentBuilder 中
 
       }
-      auditService.audit("ItemSet", null, Audit.OP.UPDATE, operator);
+      auditService.audit("ItemSet", null, Audit.OP.UPDATE, operator);  // 记录 Audit 到数据库中
     }
-
+    // 删除 Item 们
     if (!CollectionUtils.isEmpty(changeSet.getDeleteItems())) {
       for (ItemDTO item : changeSet.getDeleteItems()) {
-        Item deletedItem = itemService.delete(item.getId(), operator);
+        Item deletedItem = itemService.delete(item.getId(), operator); // 删除 Item
         if (deletedItem.getNamespaceId() != namespace.getId()) {
           throw new BadRequestException("Invalid request, item and namespace do not match!");
         }
-        configChangeContentBuilder.deleteItem(deletedItem);
+        configChangeContentBuilder.deleteItem(deletedItem); // 添加到 ConfigChangeContentBuilder 中
       }
-      auditService.audit("ItemSet", null, Audit.OP.DELETE, operator);
+      auditService.audit("ItemSet", null, Audit.OP.DELETE, operator); // 记录 Audit 到数据库中
     }
 
-    if (configChangeContentBuilder.hasContent()){
+    if (configChangeContentBuilder.hasContent()){ // 创建 Commit 对象，并保存
       createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
                    changeSet.getDataChangeLastModifiedBy());
     }
@@ -130,7 +130,7 @@ public class ItemSetService {
 
   private void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
                             String operator) {
-
+    // 创建 Commit 对象
     Commit commit = new Commit();
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
@@ -138,7 +138,7 @@ public class ItemSetService {
     commit.setChangeSets(configChangeContent);
     commit.setDataChangeCreatedBy(operator);
     commit.setDataChangeLastModifiedBy(operator);
-    commitService.save(commit);
+    commitService.save(commit); // 保存 Commit 对象
   }
 
 }

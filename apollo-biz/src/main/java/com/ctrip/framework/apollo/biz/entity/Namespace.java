@@ -32,13 +32,13 @@ import javax.persistence.Table;
 public class Namespace extends BaseEntity {
 
   @Column(name = "appId", nullable = false)
-  private String appId;
+  private String appId; // App 编号 {@link com.ctrip.framework.apollo.common.entity.App#appId}
 
   @Column(name = "ClusterName", nullable = false)
-  private String clusterName;
+  private String clusterName; // Cluster 名 {@link Cluster#name}
 
   @Column(name = "NamespaceName", nullable = false)
-  private String namespaceName;
+  private String namespaceName; // AppNamespace 名 {@link com.ctrip.framework.apollo.common.entity.AppNamespace#name}
 
   public Namespace(){
 

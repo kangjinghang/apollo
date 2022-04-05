@@ -41,20 +41,20 @@ public class AppNamespace extends BaseEntity {
       message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & " + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE
   )
   @Column(name = "Name", nullable = false)
-  private String name;
+  private String name; // AppNamespace 名
 
   @NotBlank(message = "AppId cannot be blank")
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "Format", nullable = false)
-  private String format;
+  private String format; // 格式，参见 {@link ConfigFileFormat}
 
   @Column(name = "IsPublic", columnDefinition = "Bit default '0'")
-  private boolean isPublic = false;
+  private boolean isPublic = false; // 是否公用的
 
   @Column(name = "Comment")
-  private String comment;
+  private String comment; // 备注
 
   public String getAppId() {
     return appId;

@@ -33,20 +33,20 @@ import javax.persistence.Table;
 public class Item extends BaseEntity {
 
   @Column(name = "NamespaceId", nullable = false)
-  private long namespaceId;
+  private long namespaceId; // Namespace 编号
 
   @Column(name = "key", nullable = false)
-  private String key;
+  private String key; // 键
 
   @Column(name = "value")
   @Lob
-  private String value;
+  private String value; // 值
 
   @Column(name = "comment")
-  private String comment;
+  private String comment; // 注释
 
   @Column(name = "LineNum")
-  private Integer lineNum;
+  private Integer lineNum; // 行号，从一开始。例如 Properties 中，多个配置项。每个配置项对应一行。
 
   public String getComment() {
     return comment;

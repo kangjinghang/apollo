@@ -66,98 +66,98 @@ public class NamespaceAcquireLockAspect {
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
                                 ItemDTO item) {
-    acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
+    acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy()); // 尝试锁定
   }
 
   //update item
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
                                 ItemDTO item) {
-    acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
+    acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy()); // 尝试锁定
   }
 
   //update by change set
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
                                 ItemChangeSets changeSet) {
-    acquireLock(appId, clusterName, namespaceName, changeSet.getDataChangeLastModifiedBy());
+    acquireLock(appId, clusterName, namespaceName, changeSet.getDataChangeLastModifiedBy());  // 尝试锁定
   }
 
   //delete item
   @Before("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
   public void requireLockAdvice(long itemId, String operator) {
-    Item item = itemService.findOne(itemId);
+    Item item = itemService.findOne(itemId); // 获得 Item 对象。若不存在，抛出 BadRequestException 异常
     if (item == null){
       throw new BadRequestException("item not exist.");
     }
-    acquireLock(item.getNamespaceId(), operator);
+    acquireLock(item.getNamespaceId(), operator); // 尝试锁定
   }
 
   void acquireLock(String appId, String clusterName, String namespaceName,
                            String currentUser) {
-    if (bizConfig.isNamespaceLockSwitchOff()) {
+    if (bizConfig.isNamespaceLockSwitchOff()) { // 当关闭锁定 Namespace 开关时，直接返回
       return;
     }
-
+    // 获得 Namespace 对象
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
-
+    // 尝试锁定
     acquireLock(namespace, currentUser);
   }
 
   void acquireLock(long namespaceId, String currentUser) {
-    if (bizConfig.isNamespaceLockSwitchOff()) {
+    if (bizConfig.isNamespaceLockSwitchOff()) { // 当关闭锁定 Namespace 开关时，直接返回
       return;
     }
-
+    // 获得 Namespace 对象
     Namespace namespace = namespaceService.findOne(namespaceId);
-
+    // 尝试锁定
     acquireLock(namespace, currentUser);
 
   }
 
   private void acquireLock(Namespace namespace, String currentUser) {
-    if (namespace == null) {
+    if (namespace == null) { // 当 Namespace 为空时，抛出 BadRequestException 异常
       throw new BadRequestException("namespace not exist.");
     }
 
     long namespaceId = namespace.getId();
-
+    // 获得 NamespaceLock 对象
     NamespaceLock namespaceLock = namespaceLockService.findLock(namespaceId);
     if (namespaceLock == null) {
       try {
-        tryLock(namespaceId, currentUser);
+        tryLock(namespaceId, currentUser);  // 锁定
         //lock success
       } catch (DataIntegrityViolationException e) {
         //lock fail
-        namespaceLock = namespaceLockService.findLock(namespaceId);
-        checkLock(namespace, namespaceLock, currentUser);
+        namespaceLock = namespaceLockService.findLock(namespaceId);  // 锁定失败，获得 NamespaceLock 对象
+        checkLock(namespace, namespaceLock, currentUser); // 校验锁定人是否是当前管理员
       } catch (Exception e) {
         logger.error("try lock error", e);
         throw e;
       }
     } else {
       //check lock owner is current user
-      checkLock(namespace, namespaceLock, currentUser);
+      checkLock(namespace, namespaceLock, currentUser); // 校验锁定人是否是当前管理员
     }
   }
 
   private void tryLock(long namespaceId, String user) {
-    NamespaceLock lock = new NamespaceLock();
+    NamespaceLock lock = new NamespaceLock(); // 创建 NamespaceLock 对象
     lock.setNamespaceId(namespaceId);
-    lock.setDataChangeCreatedBy(user);
-    lock.setDataChangeLastModifiedBy(user);
-    namespaceLockService.tryLock(lock);
+    lock.setDataChangeCreatedBy(user);  // 管理员
+    lock.setDataChangeLastModifiedBy(user);  // 管理员
+    namespaceLockService.tryLock(lock); // 保存 NamespaceLock 对象
   }
 
   private void checkLock(Namespace namespace, NamespaceLock namespaceLock,
                          String currentUser) {
-    if (namespaceLock == null) {
+    if (namespaceLock == null) { // 当 NamespaceLock 不存在，抛出 ServiceException 异常
       throw new ServiceException(
           String.format("Check lock for %s failed, please retry.", namespace.getNamespaceName()));
     }
 
     String lockOwner = namespaceLock.getDataChangeCreatedBy();
-    if (!lockOwner.equals(currentUser)) {
+    if (!lockOwner.equals(currentUser)) { // 校验锁定人是否是当前管理员。若不是，抛出 BadRequestException 异常
       throw new BadRequestException(
           "namespace:" + namespace.getNamespaceName() + " is modified by " + lockOwner);
     }

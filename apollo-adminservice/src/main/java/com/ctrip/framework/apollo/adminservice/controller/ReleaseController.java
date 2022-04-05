@@ -124,23 +124,23 @@ public class ReleaseController {
                             @RequestParam("operator") String operator,
                             @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
-    if (namespace == null) {
+    if (namespace == null) { // 校验对应的 Namespace 对象是否存在。若不存在，抛出 NotFoundException 异常
       throw new NotFoundException("Could not find namespace for %s %s %s", appId, clusterName,
           namespaceName);
     }
-    Release release = releaseService.publish(namespace, releaseName, releaseComment, operator, isEmergencyPublish);
+    Release release = releaseService.publish(namespace, releaseName, releaseComment, operator, isEmergencyPublish); // 发布 Namespace 的配置
 
-    //send release message
+    //send release message 获得 Cluster 名
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);
     String messageCluster;
-    if (parentNamespace != null) {
+    if (parentNamespace != null) { // 灰度发布
       messageCluster = parentNamespace.getClusterName();
     } else {
-      messageCluster = clusterName;
+      messageCluster = clusterName; // 使用请求的 ClusterName
     }
     messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, messageCluster, namespaceName),
-                              Topics.APOLLO_RELEASE_TOPIC);
-    return BeanUtils.transform(ReleaseDTO.class, release);
+                              Topics.APOLLO_RELEASE_TOPIC); // 发送 Release 消息
+    return BeanUtils.transform(ReleaseDTO.class, release); // 将 Release 转换成 ReleaseDTO 对象
   }
 
 

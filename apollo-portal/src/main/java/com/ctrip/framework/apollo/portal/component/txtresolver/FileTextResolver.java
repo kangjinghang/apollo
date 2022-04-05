@@ -33,12 +33,12 @@ public class FileTextResolver implements ConfigTextResolver {
   @Override
   public ItemChangeSets resolve(long namespaceId, String configText, List<ItemDTO> baseItems) {
     ItemChangeSets changeSets = new ItemChangeSets();
-    if (CollectionUtils.isEmpty(baseItems) && StringUtils.isEmpty(configText)) {
+    if (CollectionUtils.isEmpty(baseItems) && StringUtils.isEmpty(configText)) { // 配置文本为空，不进行修改
       return changeSets;
     }
-    if (CollectionUtils.isEmpty(baseItems)) {
+    if (CollectionUtils.isEmpty(baseItems)) {  // 不存在已有配置，创建 ItemDTO 到 ItemChangeSets 新增项
       changeSets.addCreateItem(createItem(namespaceId, 0, configText));
-    } else {
+    } else { // 已存在配置，创建 ItemDTO 到 ItemChangeSets 修改项
       ItemDTO beforeItem = baseItems.get(0);
       if (!configText.equals(beforeItem.getValue())) {//update
         changeSets.addUpdateItem(createItem(namespaceId, beforeItem.getId(), configText));

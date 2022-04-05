@@ -74,12 +74,12 @@ public class AppService {
 
   @Transactional
   public App save(App entity) {
-    if (!isAppIdUnique(entity.getAppId())) {
+    if (!isAppIdUnique(entity.getAppId())) { // 判断是否已经存在。若是，抛出 ServiceException 异常。
       throw new ServiceException("appId not unique");
     }
-    entity.setId(0);//protection
+    entity.setId(0);//protection 保护代码，避免 App 对象中，已经有 id 属性。
     App app = appRepository.save(entity);
-
+    // 记录 Audit 到数据库中
     auditService.audit(App.class.getSimpleName(), app.getId(), Audit.OP.INSERT,
         app.getDataChangeCreatedBy());
 

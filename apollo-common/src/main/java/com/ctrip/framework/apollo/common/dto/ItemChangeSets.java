@@ -24,9 +24,9 @@ import java.util.List;
  */
 public class ItemChangeSets extends BaseDTO{
 
-  private List<ItemDTO> createItems = new LinkedList<>();
-  private List<ItemDTO> updateItems = new LinkedList<>();
-  private List<ItemDTO> deleteItems = new LinkedList<>();
+  private List<ItemDTO> createItems = new LinkedList<>(); // 新增 Item 集合
+  private List<ItemDTO> updateItems = new LinkedList<>(); // 修改 Item 集合
+  private List<ItemDTO> deleteItems = new LinkedList<>(); // 删除 Item 集合
 
   public void addCreateItem(ItemDTO item) {
     createItems.add(item);

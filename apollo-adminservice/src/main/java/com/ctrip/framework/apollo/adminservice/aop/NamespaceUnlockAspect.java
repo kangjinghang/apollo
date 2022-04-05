@@ -79,38 +79,38 @@ public class NamespaceUnlockAspect {
   @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
                                 ItemDTO item) {
-    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
+    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));  // 尝试解锁
   }
 
   //update item
   @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
                                 ItemDTO item) {
-    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
+    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName)); // 尝试解锁
   }
 
   //update by change set
   @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
                                 ItemChangeSets changeSet) {
-    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
+    tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName)); // 尝试解锁
   }
 
   //delete item
   @After("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
   public void requireLockAdvice(long itemId, String operator) {
-    Item item = itemService.findOne(itemId);
+    Item item = itemService.findOne(itemId); // 获得 Item 对象。若不存在，抛出 BadRequestException 异常
     if (item == null) {
       throw new BadRequestException("item not exist.");
     }
-    tryUnlock(namespaceService.findOne(item.getNamespaceId()));
+    tryUnlock(namespaceService.findOne(item.getNamespaceId())); // 尝试解锁
   }
 
   private void tryUnlock(Namespace namespace) {
-    if (bizConfig.isNamespaceLockSwitchOff()) {
+    if (bizConfig.isNamespaceLockSwitchOff()) { // 当关闭锁定 Namespace 开关时，直接返回
       return;
     }
-
+    // 若当前 Namespace 的配置恢复原有状态，释放锁，即删除 NamespaceLock
     if (!isModified(namespace)) {
       namespaceLockService.unlock(namespace.getId());
     }
@@ -118,16 +118,16 @@ public class NamespaceUnlockAspect {
   }
 
   boolean isModified(Namespace namespace) {
-    Release release = releaseService.findLatestActiveRelease(namespace);
-    List<Item> items = itemService.findItemsWithoutOrdered(namespace.getId());
+    Release release = releaseService.findLatestActiveRelease(namespace);  // 获得当前 Namespace 的最后有效的 Release 对象
+    List<Item> items = itemService.findItemsWithoutOrdered(namespace.getId()); // 获得当前 Namespace 的 Item 集合
 
-    if (release == null) {
+    if (release == null) { // 如果无 Release 对象，判断是否有普通的 Item 配置项。若有，则代表修改过。
       return hasNormalItems(items);
     }
-
+    // 获得 Release 的配置 Map
     Map<String, String> releasedConfiguration = GSON.fromJson(release.getConfigurations(), GsonType.CONFIG);
-    Map<String, String> configurationFromItems = generateConfigurationFromItems(namespace, items);
-
+    Map<String, String> configurationFromItems = generateConfigurationFromItems(namespace, items); // 获得当前 Namespace 的配置 Map
+    // 对比两个 配置 Map ，判断是否相等。
     MapDifference<String, String> difference = Maps.difference(releasedConfiguration, configurationFromItems);
 
     return !difference.areEqual();
@@ -136,7 +136,7 @@ public class NamespaceUnlockAspect {
 
   private boolean hasNormalItems(List<Item> items) {
     for (Item item : items) {
-      if (!StringUtils.isEmpty(item.getKey())) {
+      if (!StringUtils.isEmpty(item.getKey())) { // 非空串的 Key ，因为注释和空行的 Item 的 Key 为空串。
         return true;
       }
     }
@@ -147,12 +147,12 @@ public class NamespaceUnlockAspect {
   private Map<String, String> generateConfigurationFromItems(Namespace namespace, List<Item> namespaceItems) {
 
     Map<String, String> configurationFromItems = Maps.newHashMap();
-
+    // 获得父 Namespace 对象
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);
     //parent namespace
-    if (parentNamespace == null) {
+    if (parentNamespace == null) { // 若无父 Namespace ，使用自己的配置
       generateMapFromItems(namespaceItems, configurationFromItems);
-    } else {//child namespace
+    } else {//child namespace 若有父 Namespace ，说明是灰度发布，合并父 Namespace 的配置 + 自己的配置项
       Release parentRelease = releaseService.findLatestActiveRelease(parentNamespace);
       if (parentRelease != null) {
         configurationFromItems = GSON.fromJson(parentRelease.getConfigurations(), GsonType.CONFIG);
@@ -166,7 +166,7 @@ public class NamespaceUnlockAspect {
   private Map<String, String> generateMapFromItems(List<Item> items, Map<String, String> configurationFromItems) {
     for (Item item : items) {
       String key = item.getKey();
-      if (StringUtils.isBlank(key)) {
+      if (StringUtils.isBlank(key)) { // 跳过注释和空行的配置项
         continue;
       }
       configurationFromItems.put(key, item.getValue());

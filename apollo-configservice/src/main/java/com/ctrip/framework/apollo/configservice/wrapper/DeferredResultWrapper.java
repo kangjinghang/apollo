@@ -34,10 +34,10 @@ import java.util.Map;
  */
 public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> {
   private static final ResponseEntity<List<ApolloConfigNotification>>
-      NOT_MODIFIED_RESPONSE_LIST = new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-
+      NOT_MODIFIED_RESPONSE_LIST = new ResponseEntity<>(HttpStatus.NOT_MODIFIED); // 未修改时的 ResponseEntity 响应，使用 304 状态码
+  // 归一化和原始的 Namespace 的名字的 Map
   private Map<String, String> normalizedNamespaceNameToOriginalNamespaceName;
-  private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result;
+  private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result; // 响应的 DeferredResult 对象
 
 
   public DeferredResultWrapper(long timeoutInMilli) {
@@ -47,7 +47,7 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
   public void recordNamespaceNameNormalizedResult(String originalNamespaceName, String normalizedNamespaceName) {
     if (normalizedNamespaceNameToOriginalNamespaceName == null) {
       normalizedNamespaceNameToOriginalNamespaceName = Maps.newHashMap();
-    }
+    } // 添加到 normalizedNamespaceNameToOriginalNamespaceName 中，和参数的顺序，相反
     normalizedNamespaceNameToOriginalNamespaceName.put(normalizedNamespaceName, originalNamespaceName);
   }
 
@@ -69,12 +69,12 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
    * The namespace name is used as a key in client side, so we have to return the original one instead of the correct one
    */
   public void setResult(List<ApolloConfigNotification> notifications) {
-    if (normalizedNamespaceNameToOriginalNamespaceName != null) {
+    if (normalizedNamespaceNameToOriginalNamespaceName != null) { // 恢复被归一化的 Namespace 的名字为原始的 Namespace 的名字
       notifications.stream().filter(notification -> normalizedNamespaceNameToOriginalNamespaceName.containsKey
           (notification.getNamespaceName())).forEach(notification -> notification.setNamespaceName(
               normalizedNamespaceNameToOriginalNamespaceName.get(notification.getNamespaceName())));
     }
-
+    // 设置结果，并使用 200 状态码
     result.setResult(new ResponseEntity<>(notifications, HttpStatus.OK));
   }
 

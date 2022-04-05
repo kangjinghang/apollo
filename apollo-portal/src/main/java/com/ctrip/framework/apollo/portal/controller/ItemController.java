@@ -79,11 +79,11 @@ public class ItemController {
   public void modifyItemsByText(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
                                 @RequestBody NamespaceTextModel model) {
-    model.setAppId(appId);
+    model.setAppId(appId); // 设置 PathVariable 到 model 中
     model.setClusterName(clusterName);
     model.setEnv(env);
     model.setNamespaceName(namespaceName);
-
+    // 批量更新一个 Namespace 下的 Item 们
     configService.updateConfigItemByText(model);
   }
 
@@ -92,17 +92,17 @@ public class ItemController {
   public ItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                             @PathVariable String clusterName, @PathVariable String namespaceName,
                             @RequestBody ItemDTO item) {
-    checkModel(isValidItem(item));
+    checkModel(isValidItem(item)); // 校验 Item 格式正确
 
     //protect
     item.setLineNum(0);
     item.setId(0);
-    String userId = userInfoHolder.getUser().getUserId();
+    String userId = userInfoHolder.getUser().getUserId(); // 设置 ItemDTO 的创建和修改人为当前管理员
     item.setDataChangeCreatedBy(userId);
     item.setDataChangeLastModifiedBy(userId);
     item.setDataChangeCreatedTime(null);
     item.setDataChangeLastModifiedTime(null);
-
+    // 保存 Item 到 Admin Service
     return configService.createItem(appId, Env.valueOf(env), clusterName, namespaceName, item);
   }
 

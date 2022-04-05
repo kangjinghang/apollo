@@ -50,9 +50,9 @@ public class CreationListener {
 
   @EventListener
   public void onAppCreationEvent(AppCreationEvent event) {
-    AppDTO appDTO = BeanUtils.transform(AppDTO.class, event.getApp());
-    List<Env> envs = portalSettings.getActiveEnvs();
-    for (Env env : envs) {
+    AppDTO appDTO = BeanUtils.transform(AppDTO.class, event.getApp()); // 将 App 转成 AppDTO 对象
+    List<Env> envs = portalSettings.getActiveEnvs(); // 获得有效的 Env 数组
+    for (Env env : envs) { // 循环 Env 数组，调用对应的 Admin Service 的 API ，创建 App 对象。
       try {
         appAPI.createApp(env, appDTO);
       } catch (Throwable e) {
@@ -64,9 +64,9 @@ public class CreationListener {
 
   @EventListener
   public void onAppNamespaceCreationEvent(AppNamespaceCreationEvent event) {
-    AppNamespaceDTO appNamespace = BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
-    List<Env> envs = portalSettings.getActiveEnvs();
-    for (Env env : envs) {
+    AppNamespaceDTO appNamespace = BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());  // 将 AppNamespace 转成 AppNamespaceDTO 对象
+    List<Env> envs = portalSettings.getActiveEnvs(); // 获得有效的 Env 数组
+    for (Env env : envs) { // 循环 Env 数组，调用对应的 Admin Service 的 API ，创建 AppNamespace 对象。
       try {
         namespaceAPI.createAppNamespace(env, appNamespace);
       } catch (Throwable e) {

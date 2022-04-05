@@ -70,13 +70,13 @@ public class ReleaseHistoryService {
   public ReleaseHistory createReleaseHistory(String appId, String clusterName, String
       namespaceName, String branchName, long releaseId, long previousReleaseId, int operation,
                                              Map<String, Object> operationContext, String operator) {
-    ReleaseHistory releaseHistory = new ReleaseHistory();
+    ReleaseHistory releaseHistory = new ReleaseHistory(); // 创建 ReleaseHistory 对象
     releaseHistory.setAppId(appId);
     releaseHistory.setClusterName(clusterName);
     releaseHistory.setNamespaceName(namespaceName);
     releaseHistory.setBranchName(branchName);
-    releaseHistory.setReleaseId(releaseId);
-    releaseHistory.setPreviousReleaseId(previousReleaseId);
+    releaseHistory.setReleaseId(releaseId); // Release 编号
+    releaseHistory.setPreviousReleaseId(previousReleaseId);  // 上一个 Release 编
     releaseHistory.setOperation(operation);
     if (operationContext == null) {
       releaseHistory.setOperationContext("{}"); //default empty object
@@ -86,9 +86,9 @@ public class ReleaseHistoryService {
     releaseHistory.setDataChangeCreatedTime(new Date());
     releaseHistory.setDataChangeCreatedBy(operator);
     releaseHistory.setDataChangeLastModifiedBy(operator);
-
+    // 保存 ReleaseHistory 对象
     releaseHistoryRepository.save(releaseHistory);
-
+    // 记录 Audit 到数据库中
     auditService.audit(ReleaseHistory.class.getSimpleName(), releaseHistory.getId(),
                        Audit.OP.INSERT, releaseHistory.getDataChangeCreatedBy());
 

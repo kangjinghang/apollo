@@ -22,14 +22,14 @@ import com.ctrip.framework.apollo.core.utils.StringUtils;
 
 public class NamespaceReleaseModel implements Verifiable {
 
-  private String appId;
-  private String env;
-  private String clusterName;
-  private String namespaceName;
-  private String releaseTitle;
-  private String releaseComment;
-  private String releasedBy;
-  private boolean isEmergencyPublish;
+  private String appId; // App 编号
+  private String env; // Env 名字
+  private String clusterName; // Cluster 名字
+  private String namespaceName; // Namespace 名字
+  private String releaseTitle; // 发布标题
+  private String releaseComment; // 发布描述
+  private String releasedBy; // 发布人
+  private boolean isEmergencyPublish; // 是否紧急发布
 
   @Override
   public boolean isInvalid() {

@@ -51,14 +51,14 @@ public class AppController {
 
   @PostMapping("/apps")
   public AppDTO create(@Valid @RequestBody AppDTO dto) {
-    App entity = BeanUtils.transform(App.class, dto);
+    App entity = BeanUtils.transform(App.class, dto);  // 将 AppDTO 转换成 App 对象
     App managedEntity = appService.findOne(entity.getAppId());
-    if (managedEntity != null) {
+    if (managedEntity != null) { // // 判断 appId 是否已经存在对应的 App 对象。若已经存在，抛出 BadRequestException 异常
       throw new BadRequestException("app already exist.");
     }
-
+    // 保存 App 对象到数据库
     entity = adminService.createNewApp(entity);
-
+    // 将保存的 App 对象，转换成 AppDTO 返回
     return BeanUtils.transform(AppDTO.class, entity);
   }
 

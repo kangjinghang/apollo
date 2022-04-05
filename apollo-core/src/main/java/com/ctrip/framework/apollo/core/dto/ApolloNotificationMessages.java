@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloNotificationMessages {
-  private Map<String, Long> details;
+  private Map<String, Long> details; // 明细 Map，KEY ：{appId} "+" {clusterName} "+" {namespace} ，例如：100004458+default+application，VALUE ：通知编号
 
   public ApolloNotificationMessages() {
     this(Maps.<String, Long>newTreeMap());
@@ -65,7 +65,7 @@ public class ApolloNotificationMessages {
     }
 
     for (Map.Entry<String, Long> entry : source.getDetails().entrySet()) {
-      //to make sure the notification id always grows bigger
+      //to make sure the notification id always grows bigger // 只合并新的通知编号大于的情况
       if (this.has(entry.getKey()) &&
           this.get(entry.getKey()) >= entry.getValue()) {
         continue;

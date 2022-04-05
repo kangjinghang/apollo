@@ -20,9 +20,9 @@ package com.ctrip.framework.apollo.core.dto;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloConfigNotification {
-  private String namespaceName;
-  private long notificationId;
-  private volatile ApolloNotificationMessages messages;
+  private String namespaceName; // Namespace 名字
+  private long notificationId; // 最新通知编号，目前使用 ReleaseMessage.id
+  private volatile ApolloNotificationMessages messages; // 通知消息集合
 
   //for json converter
   public ApolloConfigNotification() {
@@ -57,11 +57,11 @@ public class ApolloConfigNotification {
     if (this.messages == null) {
       synchronized (this) {
         if (this.messages == null) {
-          this.messages = new ApolloNotificationMessages();
+          this.messages = new ApolloNotificationMessages(); // 创建 ApolloNotificationMessages 对象
         }
       }
     }
-    this.messages.put(key, notificationId);
+    this.messages.put(key, notificationId); // 添加到 messages 中
   }
 
   @Override

@@ -34,19 +34,19 @@ public class Commit extends BaseEntity {
 
   @Lob
   @Column(name = "ChangeSets", nullable = false)
-  private String changeSets;
+  private String changeSets; // 变更集合。JSON 格式化，使用 {@link com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder} 生成
 
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "ClusterName", nullable = false)
-  private String clusterName;
+  private String clusterName; // Cluster 名字
 
   @Column(name = "NamespaceName", nullable = false)
-  private String namespaceName;
+  private String namespaceName; // Namespace 名字
 
   @Column(name = "Comment")
-  private String comment;
+  private String comment; // 备注
 
   public String getChangeSets() {
     return changeSets;

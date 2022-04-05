@@ -35,30 +35,30 @@ import javax.persistence.PreUpdate;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BaseEntity {
+public abstract class BaseEntity { // 基础实体抽象类
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
+  private long id; // 编号
 
   @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
-  protected boolean isDeleted = false;
+  protected boolean isDeleted = false; // 是否删除
 
   @Column(name = "DeletedAt", columnDefinition = "Bigint default '0'")
-  protected long deletedAt;
+  protected long deletedAt; // 数据删除时间
 
   @Column(name = "DataChange_CreatedBy", nullable = false)
-  private String dataChangeCreatedBy;
+  private String dataChangeCreatedBy; // 数据创建人，例如在 Portal 系统中，使用系统的管理员账号，即 UserPO.username 字段
 
   @Column(name = "DataChange_CreatedTime", nullable = false)
-  private Date dataChangeCreatedTime;
+  private Date dataChangeCreatedTime; //  数据创建时间
 
   @Column(name = "DataChange_LastModifiedBy")
-  private String dataChangeLastModifiedBy;
+  private String dataChangeLastModifiedBy; // 数据最后更新人，例如在 Portal 系统中，使用系统的管理员账号，即 UserPO.username 字段
 
   @Column(name = "DataChange_LastTime")
-  private Date dataChangeLastModifiedTime;
+  private Date dataChangeLastModifiedTime; // 数据最后更新时间
 
   public long getId() {
     return id;
@@ -119,7 +119,7 @@ public abstract class BaseEntity {
   }
 
   @PrePersist
-  protected void prePersist() {
+  protected void prePersist() { // 保存前置方法
     if (this.dataChangeCreatedTime == null) {
         dataChangeCreatedTime = new Date();
     }
@@ -129,12 +129,12 @@ public abstract class BaseEntity {
   }
 
   @PreUpdate
-  protected void preUpdate() {
+  protected void preUpdate() { // 更新前置方法
     this.dataChangeLastModifiedTime = new Date();
   }
 
   @PreRemove
-  protected void preRemove() {
+  protected void preRemove() { // 删除前置方法
     this.dataChangeLastModifiedTime = new Date();
   }
 
