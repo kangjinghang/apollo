@@ -19,10 +19,10 @@ package com.ctrip.framework.apollo.core.schedule;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public class ExponentialSchedulePolicy implements SchedulePolicy {
-  private final long delayTimeLowerBound;
-  private final long delayTimeUpperBound;
-  private long lastDelayTime;
+public class ExponentialSchedulePolicy implements SchedulePolicy { // 基于"指数级计算"的定时策略实现类
+  private final long delayTimeLowerBound; // 延迟时间下限
+  private final long delayTimeUpperBound; // 延迟时间上限
+  private long lastDelayTime; // 最后延迟执行时间
 
   public ExponentialSchedulePolicy(long delayTimeLowerBound, long delayTimeUpperBound) {
     this.delayTimeLowerBound = delayTimeLowerBound;
@@ -33,14 +33,14 @@ public class ExponentialSchedulePolicy implements SchedulePolicy {
   public long fail() {
     long delayTime = lastDelayTime;
 
-    if (delayTime == 0) {
+    if (delayTime == 0) { // 设置初始时间
       delayTime = delayTimeLowerBound;
-    } else {
+    } else { // 指数级计算，直到上限
       delayTime = Math.min(lastDelayTime << 1, delayTimeUpperBound);
     }
-
+    // 最后延迟执行时间
     lastDelayTime = delayTime;
-
+    // 返回
     return delayTime;
   }
 

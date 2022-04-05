@@ -37,25 +37,25 @@ public class Instance {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
+  private long id; // 编号
 
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "ClusterName", nullable = false)
-  private String clusterName;
+  private String clusterName; // Cluster 名字
 
   @Column(name = "DataCenter", nullable = false)
-  private String dataCenter;
+  private String dataCenter; // 数据中心的 Cluster 名字
 
   @Column(name = "Ip", nullable = false)
-  private String ip;
+  private String ip; // 客户端 IP
 
   @Column(name = "DataChange_CreatedTime", nullable = false)
-  private Date dataChangeCreatedTime;
+  private Date dataChangeCreatedTime; // 数据创建时间
 
   @Column(name = "DataChange_LastTime")
-  private Date dataChangeLastModifiedTime;
+  private Date dataChangeLastModifiedTime; // 数据最后更新时间
 
   @PrePersist
   protected void prePersist() {

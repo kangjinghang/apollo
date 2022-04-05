@@ -33,22 +33,22 @@ import com.google.common.collect.Lists;
  */
 public abstract class AbstractConfigRepository implements ConfigRepository {
   private static final Logger logger = LoggerFactory.getLogger(AbstractConfigRepository.class);
-  private List<RepositoryChangeListener> m_listeners = Lists.newCopyOnWriteArrayList();
+  private List<RepositoryChangeListener> m_listeners = Lists.newCopyOnWriteArrayList(); // RepositoryChangeListener 数组
   protected PropertiesFactory propertiesFactory = ApolloInjector.getInstance(PropertiesFactory.class);
-
+  // 尝试同步
   protected boolean trySync() {
     try {
-      sync();
-      return true;
+      sync();  // 同步
+      return true; // 返回同步成功
     } catch (Throwable ex) {
       Tracer.logEvent("ApolloConfigException", ExceptionUtil.getDetailMessage(ex));
       logger
           .warn("Sync config failed, will retry. Repository {}, reason: {}", this.getClass(), ExceptionUtil
               .getDetailMessage(ex));
     }
-    return false;
+    return false; // 返回同步失败
   }
-
+  // 同步配置
   protected abstract void sync();
 
   @Override
@@ -62,11 +62,11 @@ public abstract class AbstractConfigRepository implements ConfigRepository {
   public void removeChangeListener(RepositoryChangeListener listener) {
     m_listeners.remove(listener);
   }
-
+  //  触发监听器们
   protected void fireRepositoryChange(String namespace, Properties newProperties) {
-    for (RepositoryChangeListener listener : m_listeners) {
+    for (RepositoryChangeListener listener : m_listeners) { // 循环 RepositoryChangeListener 数组
       try {
-        listener.onRepositoryChange(namespace, newProperties);
+        listener.onRepositoryChange(namespace, newProperties); // 触发监听器
       } catch (Throwable ex) {
         Tracer.logError(ex);
         logger.error("Failed to invoke repository change listener {}", listener.getClass(), ex);

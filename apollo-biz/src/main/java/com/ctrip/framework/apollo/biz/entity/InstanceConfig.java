@@ -38,31 +38,31 @@ public class InstanceConfig {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
+  private long id; // 编号
 
   @Column(name = "InstanceId")
-  private long instanceId;
+  private long instanceId; // Instance 编号，指向 {@link Instance#id}
 
   @Column(name = "ConfigAppId", nullable = false)
-  private String configAppId;
+  private String configAppId; // App 编号
 
   @Column(name = "ConfigClusterName", nullable = false)
-  private String configClusterName;
+  private String configClusterName; // Cluster 名字
 
   @Column(name = "ConfigNamespaceName", nullable = false)
-  private String configNamespaceName;
+  private String configNamespaceName; // Namespace 名字
 
   @Column(name = "ReleaseKey", nullable = false)
-  private String releaseKey;
+  private String releaseKey; // Release Key ，对应 {@link Release#releaseKey}
 
   @Column(name = "ReleaseDeliveryTime", nullable = false)
-  private Date releaseDeliveryTime;
+  private Date releaseDeliveryTime; // 配置下发时间
 
   @Column(name = "DataChange_CreatedTime", nullable = false)
-  private Date dataChangeCreatedTime;
+  private Date dataChangeCreatedTime; // 数据创建时间
 
   @Column(name = "DataChange_LastTime")
-  private Date dataChangeLastModifiedTime;
+  private Date dataChangeLastModifiedTime; // 数据最后更新时间
 
   @PrePersist
   protected void prePersist() {

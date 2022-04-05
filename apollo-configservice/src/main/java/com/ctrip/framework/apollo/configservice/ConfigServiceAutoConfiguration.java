@@ -52,10 +52,10 @@ public class ConfigServiceAutoConfiguration {
 
   @Bean
   public ConfigService configService() {
-    if (bizConfig.isConfigServiceCacheEnabled()) {
+    if (bizConfig.isConfigServiceCacheEnabled()) {  // 开启缓存，使用 ConfigServiceWithCache
       return new ConfigServiceWithCache();
     }
-    return new DefaultConfigService();
+    return new DefaultConfigService(); // 不开启缓存，使用 DefaultConfigService
   }
 
   @Bean
