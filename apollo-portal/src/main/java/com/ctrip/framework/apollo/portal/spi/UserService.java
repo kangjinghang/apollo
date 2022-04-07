@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface UserService {
+public interface UserService { // User 服务接口，用来给 Portal 提供用户搜索相关功能
   List<UserInfo> searchUsers(String keyword, int offset, int limit);
 
   UserInfo findByUserId(String userId);

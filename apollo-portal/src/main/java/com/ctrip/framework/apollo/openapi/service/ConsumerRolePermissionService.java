@@ -51,24 +51,24 @@ public class ConsumerRolePermissionService {
    * Check whether user has the permission
    */
   public boolean consumerHasPermission(long consumerId, String permissionType, String targetId) {
-    Permission permission =
+    Permission permission =  // 获得 Permission 对象
         permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
-    if (permission == null) {
+    if (permission == null) { // 若 Permission 不存在，返回 false
       return false;
     }
-
+    // 获得 ConsumerRole 数组
     List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
-    if (CollectionUtils.isEmpty(consumerRoles)) {
+    if (CollectionUtils.isEmpty(consumerRoles)) { // 若数组为空，返回 false
       return false;
     }
-
+    // 获得 RolePermission 数组
     Set<Long> roleIds =
         consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toSet());
     List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleIdIn(roleIds);
-    if (CollectionUtils.isEmpty(rolePermissions)) {
+    if (CollectionUtils.isEmpty(rolePermissions)) { // 若数组为空，返回 false
       return false;
     }
-
+    // 判断是否有对应的 RolePermission 。若有，则返回 true 【有权限】
     for (RolePermission rolePermission : rolePermissions) {
       if (rolePermission.getPermissionId() == permission.getId()) {
         return true;

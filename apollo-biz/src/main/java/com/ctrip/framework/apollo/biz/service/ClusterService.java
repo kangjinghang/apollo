@@ -102,21 +102,21 @@ public class ClusterService {
 
     return cluster;
   }
-
+  // 删除Cluster
   @Transactional
   public void delete(long id, String operator) {
-    Cluster cluster = clusterRepository.findById(id).orElse(null);
+    Cluster cluster = clusterRepository.findById(id).orElse(null); // 获得 Cluster 对象
     if (cluster == null) {
       throw new BadRequestException("cluster not exist");
     }
 
-    //delete linked namespaces
+    //delete linked namespaces // 删除 Namespace
     namespaceService.deleteByAppIdAndClusterName(cluster.getAppId(), cluster.getName(), operator);
 
-    cluster.setDeleted(true);
+    cluster.setDeleted(true); // 标记删除 Cluster
     cluster.setDataChangeLastModifiedBy(operator);
     clusterRepository.save(cluster);
-
+    // 记录 Audit 到数据库中
     auditService.audit(Cluster.class.getSimpleName(), id, Audit.OP.DELETE, operator);
   }
 
@@ -147,14 +147,14 @@ public class ClusterService {
 
     auditService.audit(Cluster.class.getSimpleName(), cluster.getId(), Audit.OP.INSERT, createBy);
   }
-
+  // 获得子 Cluster 数组
   public List<Cluster> findChildClusters(String appId, String parentClusterName) {
-    Cluster parentCluster = findOne(appId, parentClusterName);
-    if (parentCluster == null) {
+    Cluster parentCluster = findOne(appId, parentClusterName); // 获得父 Cluster 对象
+    if (parentCluster == null) { // 若不存在，抛出 BadRequestException 异常
       throw new BadRequestException("parent cluster not exist");
     }
 
-    return clusterRepository.findByParentClusterId(parentCluster.getId());
+    return clusterRepository.findByParentClusterId(parentCluster.getId()); // 获得子 Cluster 数组
   }
 
   public List<Cluster> findClusters(String appId) {

@@ -46,19 +46,19 @@ public class ServerConfigController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/server/config")
-  public ServerConfig createOrUpdate(@Valid @RequestBody ServerConfig serverConfig) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
-
+  public ServerConfig createOrUpdate(@Valid @RequestBody ServerConfig serverConfig) { // 校验 ServerConfig 非空
+    String modifiedBy = userInfoHolder.getUser().getUserId();  // 获得操作人为当前管理员
+    // 查询当前 DB 里的对应的 ServerConfig 对象
     ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
 
-    if (Objects.isNull(storedConfig)) {//create
+    if (Objects.isNull(storedConfig)) {//create // 若不存在，则进行新增
       serverConfig.setDataChangeCreatedBy(modifiedBy);
       serverConfig.setDataChangeLastModifiedBy(modifiedBy);
       serverConfig.setId(0L);//为空，设置ID 为0，jpa执行新增操作
       return serverConfigRepository.save(serverConfig);
     }
-    //update
-    BeanUtils.copyEntityProperties(serverConfig, storedConfig);
+    //update // 若存在，则进行更新
+    BeanUtils.copyEntityProperties(serverConfig, storedConfig); // 复制属性，serverConfig => storedConfig
     storedConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigRepository.save(storedConfig);
   }

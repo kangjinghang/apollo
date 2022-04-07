@@ -37,22 +37,22 @@ public class ConsumerAudit {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
+  private long id; // 日志编号，自增
 
   @Column(name = "ConsumerId", nullable = false)
-  private long consumerId;
+  private long consumerId; // 第三方应用编号，使用 {@link Consumer#id}
 
   @Column(name = "Uri", nullable = false)
-  private String uri;
+  private String uri; // 请求 URI
 
   @Column(name = "Method", nullable = false)
-  private String method;
+  private String method; // 请求 Method
 
   @Column(name = "DataChange_CreatedTime")
-  private Date dataChangeCreatedTime;
+  private Date dataChangeCreatedTime; // 数据创建时间
 
   @Column(name = "DataChange_LastTime")
-  private Date dataChangeLastModifiedTime;
+  private Date dataChangeLastModifiedTime; // 数据最后更新时间
 
   @PrePersist
   protected void prePersist() {

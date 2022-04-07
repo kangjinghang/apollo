@@ -49,7 +49,7 @@ public class PermissionValidator {
     this.appNamespaceService = appNamespaceService;
     this.systemRoleManagerService = systemRoleManagerService;
   }
-
+  // ========== Namespace 级别 ==========
   public boolean hasModifyNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.MODIFY_NAMESPACE,
@@ -87,7 +87,7 @@ public class PermissionValidator {
         hasModifyNamespacePermission(appId, namespaceName, env) ||
         hasReleaseNamespacePermission(appId, namespaceName, env);
   }
-
+  // ========== App 级别 ==========
   public boolean hasAssignRolePermission(String appId) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.ASSIGN_ROLE,
@@ -104,12 +104,12 @@ public class PermissionValidator {
   public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
 
     boolean isPublicAppNamespace = appNamespace.isPublic();
-
+    // 若满足如下任一条件： 1. 公开类型的 AppNamespace 。2. 私有类型的 AppNamespace ，并且允许 App 管理员创建私有类型的 AppNamespace 。
     if (portalConfig.canAppAdminCreatePrivateNamespace() || isPublicAppNamespace) {
       return hasCreateNamespacePermission(appId);
     }
 
-    return isSuperAdmin();
+    return isSuperAdmin();  // 超管
   }
 
   public boolean hasCreateClusterPermission(String appId) {
@@ -121,7 +121,7 @@ public class PermissionValidator {
   public boolean isAppAdmin(String appId) {
     return isSuperAdmin() || hasAssignRolePermission(appId);
   }
-
+  // ========== 超管 级别 ==========
   public boolean isSuperAdmin() {
     return rolePermissionService.isSuperAdmin(userInfoHolder.getUser().getUserId());
   }

@@ -28,7 +28,7 @@ public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   private String branchName;
   private String namespaceName;
   private long releaseId;
-  private long loadVersion;
+  private long loadVersion; // 加载版本
   private int branchStatus;
   private Set<GrayReleaseRuleItemDTO> ruleItems;
 
@@ -74,7 +74,7 @@ public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   public String getNamespaceName() {
     return namespaceName;
   }
-
+  // 匹配 clientAppId + clientIp + clientLabel
   public boolean matches(String clientAppId, String clientIp, String clientLabel) {
     for (GrayReleaseRuleItemDTO ruleItem : ruleItems) {
       if (ruleItem.matches(clientAppId, clientIp, clientLabel)) {

@@ -34,10 +34,10 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class UserRole extends BaseEntity {
   @Column(name = "UserId", nullable = false)
-  private String userId;
+  private String userId; // 账号 {@link UserPO#username}
 
   @Column(name = "RoleId", nullable = false)
-  private long roleId;
+  private long roleId; // 角色编号 {@link Role#id}
 
   public String getUserId() {
     return userId;

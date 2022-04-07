@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * @author lepdou 2017-03-10
  */
-public class SpringSecurityUserService implements UserService {
+public class SpringSecurityUserService implements UserService {  // 基于 Spring Security 的 UserService 实现类
 
   private final PasswordEncoder passwordEncoder;
 
@@ -52,14 +52,14 @@ public class SpringSecurityUserService implements UserService {
     this.userRepository = userRepository;
     this.authorityRepository = authorityRepository;
   }
-
+  // 创建或更新 User
   @Transactional
   public void createOrUpdate(UserPO user) {
     String username = user.getUsername();
     String newPassword = passwordEncoder.encode(user.getPassword());
 
     UserPO managedUser = userRepository.findByUsername(username);
-    if (managedUser == null) {
+    if (managedUser == null) { // 若不存在，则进行新增
       user.setPassword(newPassword);
       user.setEnabled(1);
       userRepository.save(user);
@@ -69,7 +69,7 @@ public class SpringSecurityUserService implements UserService {
       authority.setUsername(username);
       authority.setAuthority("ROLE_user");
       authorityRepository.save(authority);
-    } else {
+    } else { // 若存在，则进行更新
       managedUser.setPassword(newPassword);
       managedUser.setEmail(user.getEmail());
       managedUser.setUserDisplayName(user.getUserDisplayName());

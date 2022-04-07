@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 
-/**
+/** OpenAPI 认证( Authentication )过滤器
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConsumerAuthenticationFilter implements Filter {
@@ -53,19 +53,19 @@ public class ConsumerAuthenticationFilter implements Filter {
       IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) req;
     HttpServletResponse response = (HttpServletResponse) resp;
-
+    // 从请求 Header 中，获得 token
     String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-
+    // 获得 Consumer 编号
     Long consumerId = consumerAuthUtil.getConsumerId(token);
-
+    // 若不存在，返回错误状态码 401
     if (consumerId == null) {
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
       return;
     }
-
+    // 存储 Consumer 编号到请求中
     consumerAuthUtil.storeConsumerId(request, consumerId);
-    consumerAuditUtil.audit(request, consumerId);
-
+    consumerAuditUtil.audit(request, consumerId); // 记录 ConsumerAudit 记录
+    // 继续过滤器
     chain.doFilter(req, resp);
   }
 

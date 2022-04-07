@@ -21,15 +21,15 @@ public interface PermissionType {
   /**
    * system level permission
    */
-  String CREATE_APPLICATION = "CreateApplication";
-  String MANAGE_APP_MASTER = "ManageAppMaster";
+  String CREATE_APPLICATION = "CreateApplication"; // 创建 Application
+  String MANAGE_APP_MASTER = "ManageAppMaster"; // 管理 Application
 
   /**
    * APP level permission
    */
-
+  // 创建 Namespace
   String CREATE_NAMESPACE = "CreateNamespace";
-
+  // 创建 Cluster
   String CREATE_CLUSTER = "CreateCluster";
 
   /**
@@ -40,9 +40,9 @@ public interface PermissionType {
   /**
    * namespace level permission
    */
-
+  // 修改 Namespace
   String MODIFY_NAMESPACE = "ModifyNamespace";
-
+  // 发布 Namespace
   String RELEASE_NAMESPACE = "ReleaseNamespace";
 
 

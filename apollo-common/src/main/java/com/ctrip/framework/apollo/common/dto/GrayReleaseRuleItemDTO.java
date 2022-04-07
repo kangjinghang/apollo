@@ -29,9 +29,9 @@ public class GrayReleaseRuleItemDTO {
   public static final String ALL_IP = "*";
   public static final String ALL_Label = "*";
 
-  private String clientAppId;
-  private Set<String> clientIpList;
-  private Set<String> clientLabelList;
+  private String clientAppId; // 客户端 App 编号
+  private Set<String> clientIpList; // 客户端 IP 集合
+  private Set<String> clientLabelList; // 客户端 标签 集合
 
   public GrayReleaseRuleItemDTO(String clientAppId) {
     this(clientAppId, Sets.newHashSet(), Sets.newHashSet());

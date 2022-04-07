@@ -34,10 +34,10 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class RolePermission extends BaseEntity {
   @Column(name = "RoleId", nullable = false)
-  private long roleId;
+  private long roleId; //  角色编号 {@link Role#id}
 
   @Column(name = "PermissionId", nullable = false)
-  private long permissionId;
+  private long permissionId; // 权限编号 {@link Permission#id}
 
   public long getRoleId() {
     return roleId;

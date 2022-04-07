@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.spi;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface LogoutHandler {
+public interface LogoutHandler { // 用来实现登出功能
 
   void logout(HttpServletRequest request, HttpServletResponse response);
 

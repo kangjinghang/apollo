@@ -61,11 +61,11 @@ public class NamespaceBranchController {
                                    @PathVariable String clusterName,
                                    @PathVariable String namespaceName,
                                    @RequestParam("operator") String operator) {
-
+    // 校验 Namespace 是否存在
     checkNamespace(appId, clusterName, namespaceName);
-
+    // 创建子 Namespace
     Namespace createdBranch = namespaceBranchService.createBranch(appId, clusterName, namespaceName, operator);
-
+    // 将 Namespace 转换成 NamespaceDTO 对象
     return BeanUtils.transform(NamespaceDTO.class, createdBranch);
   }
 
@@ -91,21 +91,21 @@ public class NamespaceBranchController {
 
     return ruleDTO;
   }
-
+  // 更新 Namespace 分支的灰度规则
   @Transactional
   @PutMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
   public void updateBranchGrayRules(@PathVariable String appId, @PathVariable String clusterName,
                                     @PathVariable String namespaceName, @PathVariable String branchName,
                                     @RequestBody GrayReleaseRuleDTO newRuleDto) {
-
+    // 校验子 Namespace
     checkBranch(appId, clusterName, namespaceName, branchName);
-
+    // 将 GrayReleaseRuleDTO 转成 GrayReleaseRule 对象
     GrayReleaseRule newRules = BeanUtils.transform(GrayReleaseRule.class, newRuleDto);
-    newRules.setRules(GrayReleaseRuleItemTransformer.batchTransformToJSON(newRuleDto.getRuleItems()));
-    newRules.setBranchStatus(NamespaceBranchStatus.ACTIVE);
-
+    newRules.setRules(GrayReleaseRuleItemTransformer.batchTransformToJSON(newRuleDto.getRuleItems()));  // JSON 化规则为字符串，并设置到 GrayReleaseRule 对象中
+    newRules.setBranchStatus(NamespaceBranchStatus.ACTIVE); // 设置 GrayReleaseRule 对象的 branchStatus 为 ACTIVE
+    // 更新子 Namespace 的灰度发布规则
     namespaceBranchService.updateBranchGrayRules(appId, clusterName, namespaceName, branchName, newRules);
-
+    // 发送 Release 消息
     messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
                               Topics.APOLLO_RELEASE_TOPIC);
   }
@@ -139,12 +139,12 @@ public class NamespaceBranchController {
 
     return BeanUtils.transform(NamespaceDTO.class, childNamespace);
   }
-
+  // 校验子 Namespace 是否存在
   private void checkBranch(String appId, String clusterName, String namespaceName, String branchName) {
-    //1. check parent namespace
+    //1. check parent namespace // 校验 Namespace 是否存在
     checkNamespace(appId, clusterName, namespaceName);
 
-    //2. check child namespace
+    //2. check child namespace // 校验子 Namespace 是否存在。若不存在，抛出 BadRequestException 异常
     Namespace childNamespace = namespaceService.findOne(appId, branchName, namespaceName);
     if (childNamespace == null) {
       throw new BadRequestException(
@@ -155,8 +155,8 @@ public class NamespaceBranchController {
   }
 
   private void checkNamespace(String appId, String clusterName, String namespaceName) {
-    Namespace parentNamespace = namespaceService.findOne(appId, clusterName, namespaceName);
-    if (parentNamespace == null) {
+    Namespace parentNamespace = namespaceService.findOne(appId, clusterName, namespaceName); // 查询父 Namespace 对象
+    if (parentNamespace == null) { // 若父 Namespace 不存在，抛出 BadRequestException 异常
       throw new BadRequestException(
           "Namespace not exist. AppId = %s, ClusterName = %s, NamespaceName = %s", appId,
           clusterName, namespaceName);

@@ -34,10 +34,10 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class Permission extends BaseEntity {
   @Column(name = "PermissionType", nullable = false)
-  private String permissionType;
+  private String permissionType; // 权限类型
 
   @Column(name = "TargetId", nullable = false)
-  private String targetId;
+  private String targetId; // 目标编号
 
   public String getPermissionType() {
     return permissionType;

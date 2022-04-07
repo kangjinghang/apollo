@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
  * different companies should have a different implementation
  */
 public interface UserInfoHolder {
-
+  // 获取当前登录用户信息，SSO 一般都是把当前登录用户信息放在线程 ThreadLocal 上
   UserInfo getUser();
 
 }

@@ -155,13 +155,13 @@ public class AuthConfiguration {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
-      http.headers().frameOptions().sameOrigin();
+      http.csrf().disable(); // 关闭打开的 csrf 保护
+      http.headers().frameOptions().sameOrigin();  // 仅允许相同 origin 访问
       http.authorizeRequests()
           .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").hasAnyRole(USER_ROLE);
       http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
-          .httpBasic();
+          .httpBasic(); // 其他，需要登录 User
       http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
       http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));

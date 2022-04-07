@@ -18,9 +18,9 @@ package com.ctrip.framework.apollo.portal.entity.bo;
 
 public class UserInfo {
 
-  private String userId;
-  private String name;
-  private String email;
+  private String userId; // 账号 {@link com.ctrip.framework.apollo.portal.entity.po.UserPO#username}
+  private String name; // 账号 {@link com.ctrip.framework.apollo.portal.entity.po.UserPO#username}
+  private String email; // 邮箱 {@link com.ctrip.framework.apollo.portal.entity.po.UserPO#email}
 
   public UserInfo() {
 

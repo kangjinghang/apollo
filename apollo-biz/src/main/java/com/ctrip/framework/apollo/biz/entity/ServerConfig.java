@@ -34,16 +34,16 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class ServerConfig extends BaseEntity {
   @Column(name = "Key", nullable = false)
-  private String key;
+  private String key; // KEY
 
   @Column(name = "Cluster", nullable = false)
-  private String cluster;
+  private String cluster; // Cluster 名
 
   @Column(name = "Value", nullable = false)
-  private String value;
+  private String value; // VALUE
 
   @Column(name = "Comment", nullable = false)
-  private String comment;
+  private String comment; // 备注
 
   public String getKey() {
     return key;

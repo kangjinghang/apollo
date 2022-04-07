@@ -31,15 +31,15 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class Audit extends BaseEntity {
 
-  public enum OP {
+  public enum OP { // 操作枚举
     INSERT, UPDATE, DELETE
   }
 
   @Column(name = "EntityName", nullable = false)
-  private String entityName;
+  private String entityName; // 实体名
 
   @Column(name = "EntityId")
-  private Long entityId;
+  private Long entityId; // 实体编号
 
   @Column(name = "OpName", nullable = false)
   private String opName;

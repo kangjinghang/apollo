@@ -41,14 +41,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 public class ConsumerAuditUtil implements InitializingBean {
   private static final int CONSUMER_AUDIT_MAX_SIZE = 10000;
-  private final BlockingQueue<ConsumerAudit> audits = Queues.newLinkedBlockingQueue(CONSUMER_AUDIT_MAX_SIZE);
-  private final ExecutorService auditExecutorService;
-  private final AtomicBoolean auditStopped;
-  private static final int BATCH_SIZE = 100;
+  private final BlockingQueue<ConsumerAudit> audits = Queues.newLinkedBlockingQueue(CONSUMER_AUDIT_MAX_SIZE); // 队列
+  private final ExecutorService auditExecutorService; // ExecutorService 对象
+  private final AtomicBoolean auditStopped; // 是否停止
+  private static final int BATCH_SIZE = 100; // 批任务 ConsumerAudit 数量
 
   // ConsumerAuditUtilTest used reflection to set BATCH_TIMEOUT and BATCH_TIMEUNIT, so without `final` now
-  private static long BATCH_TIMEOUT = 5; 
-  private static TimeUnit BATCH_TIMEUNIT = TimeUnit.SECONDS;
+  private static long BATCH_TIMEOUT = 5;  // 批任务 ConsumerAudit 等待超时时间
+  private static TimeUnit BATCH_TIMEUNIT = TimeUnit.SECONDS; // {@link #BATCH_TIMEOUT} 单位
 
   private final ConsumerService consumerService;
 
@@ -61,14 +61,14 @@ public class ConsumerAuditUtil implements InitializingBean {
 
   public boolean audit(HttpServletRequest request, long consumerId) {
     //ignore GET request
-    if ("GET".equalsIgnoreCase(request.getMethod())) {
+    if ("GET".equalsIgnoreCase(request.getMethod())) { // 忽略 GET 请求
       return true;
     }
-    String uri = request.getRequestURI();
+    String uri = request.getRequestURI(); // 组装 URI
     if (!Strings.isNullOrEmpty(request.getQueryString())) {
       uri += "?" + request.getQueryString();
     }
-
+    // 创建 ConsumerAudit 对象
     ConsumerAudit consumerAudit = new ConsumerAudit();
     Date now = new Date();
     consumerAudit.setConsumerId(consumerId);
@@ -77,17 +77,17 @@ public class ConsumerAuditUtil implements InitializingBean {
     consumerAudit.setDataChangeCreatedTime(now);
     consumerAudit.setDataChangeLastModifiedTime(now);
 
-    //throw away audits if exceeds the max size
+    //throw away audits if exceeds the max size // 添加到队列
     return this.audits.offer(consumerAudit);
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
     auditExecutorService.submit(() -> {
-      while (!auditStopped.get() && !Thread.currentThread().isInterrupted()) {
+      while (!auditStopped.get() && !Thread.currentThread().isInterrupted()) { // 循环【批任务】，直到停止
         List<ConsumerAudit> toAudit = Lists.newArrayList();
         try {
-          Queues.drain(audits, toAudit, BATCH_SIZE, BATCH_TIMEOUT, BATCH_TIMEUNIT);
+          Queues.drain(audits, toAudit, BATCH_SIZE, BATCH_TIMEOUT, BATCH_TIMEUNIT);  // 获得 ConsumerAudit 批任务，直到到达上限，或者超时
           if (!toAudit.isEmpty()) {
             consumerService.createConsumerAudits(toAudit);
           }

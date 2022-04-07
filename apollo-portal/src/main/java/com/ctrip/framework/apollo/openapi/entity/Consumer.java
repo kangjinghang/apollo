@@ -32,22 +32,22 @@ import javax.persistence.Table;
 public class Consumer extends BaseEntity {
 
   @Column(name = "Name", nullable = false)
-  private String name;
+  private String name; // 应用名称
 
   @Column(name = "AppId", nullable = false)
-  private String appId;
+  private String appId; // 应用编号。注意，和 {@link com.ctrip.framework.apollo.common.entity.App} 不是一个东西
 
   @Column(name = "OrgId", nullable = false)
-  private String orgId;
+  private String orgId; // 部门编号
 
   @Column(name = "OrgName", nullable = false)
-  private String orgName;
+  private String orgName; // 部门名
 
   @Column(name = "OwnerName", nullable = false)
-  private String ownerName;
+  private String ownerName; // 项目负责人名，使用 {@link com.ctrip.framework.apollo.portal.entity.po.UserPO#username}
 
   @Column(name = "OwnerEmail", nullable = false)
-  private String ownerEmail;
+  private String ownerEmail; //  项目负责人邮箱，使用 {@link com.ctrip.framework.apollo.portal.entity.po.UserPO#email}
 
   public String getAppId() {
     return appId;

@@ -36,13 +36,13 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class ConsumerToken extends BaseEntity {
   @Column(name = "ConsumerId", nullable = false)
-  private long consumerId;
+  private long consumerId; // 第三方应用编号，使用 {@link Consumer#id}
 
   @Column(name = "token", nullable = false)
-  private String token;
+  private String token; // Token
 
   @Column(name = "Expires", nullable = false)
-  private Date expires;
+  private Date expires; // 过期时间
 
   public long getConsumerId() {
     return consumerId;

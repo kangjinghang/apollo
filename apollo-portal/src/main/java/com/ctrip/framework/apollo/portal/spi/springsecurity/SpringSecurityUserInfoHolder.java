@@ -39,7 +39,7 @@ public class SpringSecurityUserInfoHolder implements UserInfoHolder {
     if (userInfoFound != null) {
       return userInfoFound;
     }
-    UserInfo userInfo = new UserInfo();
+    UserInfo userInfo = new UserInfo(); // 创建 UserInfo 对象，设置 username 到 UserInfo.userId 中
     userInfo.setUserId(userId);
     return userInfo;
   }

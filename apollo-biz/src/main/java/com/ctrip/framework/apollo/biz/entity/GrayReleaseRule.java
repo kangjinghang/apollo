@@ -32,25 +32,25 @@ import javax.persistence.Table;
 public class GrayReleaseRule extends BaseEntity{
 
   @Column(name = "appId", nullable = false)
-  private String appId;
+  private String appId; // App 编号
 
   @Column(name = "ClusterName", nullable = false)
-  private String clusterName;
+  private String clusterName; // Cluster 名字
 
   @Column(name = "NamespaceName", nullable = false)
-  private String namespaceName;
+  private String namespaceName; // Namespace 名字
 
   @Column(name = "BranchName", nullable = false)
-  private String branchName;
+  private String branchName; // Branch 名，使用子 Cluster 名字
 
   @Column(name = "Rules")
-  private String rules;
+  private String rules; // 规则，目前将 {@link com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO} 的数组，JSON 格式化
 
   @Column(name = "releaseId", nullable = false)
-  private Long releaseId;
+  private Long releaseId; // Release 编号。有两种情况：1、当灰度已经发布，则指向对应的最新的 Release 对象的编号 2、当灰度还未发布，等于 0 。等到灰度发布后，更新为对应的 Release 对象的编号
 
   @Column(name = "BranchStatus", nullable = false)
-  private int branchStatus;
+  private int branchStatus; // 分支状态，在 {@link com.ctrip.framework.apollo.common.constants.NamespaceBranchStatus} 枚举
 
   public String getAppId() {
     return appId;

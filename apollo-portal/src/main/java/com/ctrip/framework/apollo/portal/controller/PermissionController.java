@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+// 提供权限相关的 API
 @RestController
 public class PermissionController {
 

@@ -161,27 +161,27 @@ public class ReleaseService {
     }
     return releases;
   }
-
+  // 合并子 Namespace 变更的配置 Map 到父 Namespace ，并进行一次 Release
   @Transactional
   public Release mergeBranchChangeSetsAndRelease(Namespace namespace, String branchName, String releaseName,
                                                  String releaseComment, boolean isEmergencyPublish,
                                                  ItemChangeSets changeSets) {
-
+    // 校验锁定
     checkLock(namespace, isEmergencyPublish, changeSets.getDataChangeLastModifiedBy());
-
+    // 变更的配置集 合 ItemChangeSets 对象，更新到父 Namespace 中
     itemSetService.updateSet(namespace, changeSets);
-
+    // 获得子 Namespace 的最新且有效的 Release 对象
     Release branchRelease = findLatestActiveRelease(namespace.getAppId(), branchName, namespace
         .getNamespaceName());
-    long branchReleaseId = branchRelease == null ? 0 : branchRelease.getId();
-
+    long branchReleaseId = branchRelease == null ? 0 : branchRelease.getId(); // 获得子 Namespace 的最新且有效的 Release 编号
+    // 获得父 Namespace 的配置 Map
     Map<String, String> operateNamespaceItems = getNamespaceItems(namespace);
-
+    // 创建 Map ，用于 ReleaseHistory 对象的 operationContext 属性。
     Map<String, Object> operationContext = Maps.newLinkedHashMap();
     operationContext.put(ReleaseOperationContext.SOURCE_BRANCH, branchName);
     operationContext.put(ReleaseOperationContext.BASE_RELEASE_ID, branchReleaseId);
     operationContext.put(ReleaseOperationContext.IS_EMERGENCY_PUBLISH, isEmergencyPublish);
-
+    // 父 Namespace 进行发布
     return masterRelease(namespace, releaseName, releaseComment, operateNamespaceItems,
                          changeSets.getDataChangeLastModifiedBy(),
                          ReleaseOperation.GRAY_RELEASE_MERGE_TO_MASTER, operationContext);
@@ -227,17 +227,17 @@ public class ReleaseService {
 
     return release;
   }
-
+  // 进行灰度发布
   private Release publishBranchNamespace(Namespace parentNamespace, Namespace childNamespace,
                                          Map<String, String> childNamespaceItems,
                                          String releaseName, String releaseComment,
                                          String operator, boolean isEmergencyPublish, Set<String> grayDelKeys) {
-    Release parentLatestRelease = findLatestActiveRelease(parentNamespace);
+    Release parentLatestRelease = findLatestActiveRelease(parentNamespace);  // 获得父 Namespace 的最后有效 Release 对象
     Map<String, String> parentConfigurations = parentLatestRelease != null ?
             GSON.fromJson(parentLatestRelease.getConfigurations(),
-                          GsonType.CONFIG) : new LinkedHashMap<>();
-    long baseReleaseId = parentLatestRelease == null ? 0 : parentLatestRelease.getId();
-
+                          GsonType.CONFIG) : new LinkedHashMap<>(); // 获得父 Namespace 的配置项
+    long baseReleaseId = parentLatestRelease == null ? 0 : parentLatestRelease.getId(); // 获得父 Namespace 的 releaseId 属性
+    // 合并配置项
     Map<String, String> configsToPublish = mergeConfiguration(parentConfigurations, childNamespaceItems);
 
     if(!(grayDelKeys == null || grayDelKeys.size()==0)){
@@ -245,7 +245,7 @@ public class ReleaseService {
         configsToPublish.remove(key);
       }
     }
-
+    // 发布子 Namespace 的 Release
     return branchRelease(parentNamespace, childNamespace, releaseName, releaseComment,
         configsToPublish, baseReleaseId, operator, ReleaseOperation.GRAY_RELEASE, isEmergencyPublish,
         childNamespaceItems.keySet());
@@ -278,7 +278,7 @@ public class ReleaseService {
       }
     }
   }
-
+  // 将 父 Namespace (主干) 合并到子 Namespace (分支)，并进行一次子 Namespace 的发布
   private void mergeFromMasterAndPublishBranch(Namespace parentNamespace, Namespace childNamespace,
                                                Map<String, String> parentNamespaceItems,
                                                String releaseName, String releaseComment,
@@ -287,7 +287,7 @@ public class ReleaseService {
     //create release for child namespace
     Release childNamespaceLatestActiveRelease = findLatestActiveRelease(childNamespace);
 
-    Map<String, String> childReleaseConfiguration;
+    Map<String, String> childReleaseConfiguration; // 获得子 Namespace 的配置 Map
     Collection<String> branchReleaseKeys;
     if (childNamespaceLatestActiveRelease != null) {
       childReleaseConfiguration = GSON.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
@@ -296,16 +296,16 @@ public class ReleaseService {
       childReleaseConfiguration = Collections.emptyMap();
       branchReleaseKeys = null;
     }
-
+    // 获得父 Namespace 的配置 Map
     Map<String, String> parentNamespaceOldConfiguration = masterPreviousRelease == null ?
                                                           null : GSON.fromJson(masterPreviousRelease.getConfigurations(),
                                                                                GsonType.CONFIG);
-
+    // 计算合并最新父 Namespace 的配置 Map 后的子 Namespace 的配置 Map
     Map<String, String> childNamespaceToPublishConfigs =
         calculateChildNamespaceToPublishConfiguration(parentNamespaceOldConfiguration, parentNamespaceItems,
             childReleaseConfiguration, branchReleaseKeys);
 
-    //compare
+    //compare  // 若发生了变化，则进行一次子 Namespace 的发布
     if (!childNamespaceToPublishConfigs.equals(childReleaseConfiguration)) {
       branchRelease(parentNamespace, childNamespace, releaseName, releaseComment,
                     childNamespaceToPublishConfigs, parentRelease.getId(), operator,
@@ -331,7 +331,7 @@ public class ReleaseService {
 
     return (Collection<String>) operationContext.get(ReleaseOperationContext.BRANCH_RELEASE_KEYS);
   }
-
+  // 进行灰度发布
   private Release publishBranchNamespace(Namespace parentNamespace, Namespace childNamespace,
                                          Map<String, String> childNamespaceItems,
                                          String releaseName, String releaseComment,
@@ -356,31 +356,31 @@ public class ReleaseService {
 
     return release;
   }
-
+  // 发布子 Namespace 的 Release
   private Release branchRelease(Namespace parentNamespace, Namespace childNamespace,
                                 String releaseName, String releaseComment,
                                 Map<String, String> configurations, long baseReleaseId,
                                 String operator, int releaseOperation, boolean isEmergencyPublish, Collection<String> branchReleaseKeys) {
     Release previousRelease = findLatestActiveRelease(childNamespace.getAppId(),
                                                       childNamespace.getClusterName(),
-                                                      childNamespace.getNamespaceName());
-    long previousReleaseId = previousRelease == null ? 0 : previousRelease.getId();
-
+                                                      childNamespace.getNamespaceName()); // 获得子 Namespace 最后有效的 Release 对象
+    long previousReleaseId = previousRelease == null ? 0 : previousRelease.getId(); // // 获得子 Namespace 最后有效的 Release 对象的编号
+    // 创建 Map ，用于 ReleaseHistory 对象的 operationContext 属性。
     Map<String, Object> releaseOperationContext = Maps.newLinkedHashMap();
     releaseOperationContext.put(ReleaseOperationContext.BASE_RELEASE_ID, baseReleaseId);
     releaseOperationContext.put(ReleaseOperationContext.IS_EMERGENCY_PUBLISH, isEmergencyPublish);
     releaseOperationContext.put(ReleaseOperationContext.BRANCH_RELEASE_KEYS, branchReleaseKeys);
-
+    // 创建子 Namespace 的 Release 对象，并保存
     Release release =
         createRelease(childNamespace, releaseName, releaseComment, configurations, operator);
-
+    // 更新 GrayReleaseRule 的 releaseId 属性
     //update gray release rules
     GrayReleaseRule grayReleaseRule = namespaceBranchService.updateRulesReleaseId(childNamespace.getAppId(),
                                                                                   parentNamespace.getClusterName(),
                                                                                   childNamespace.getNamespaceName(),
                                                                                   childNamespace.getClusterName(),
                                                                                   release.getId(), operator);
-
+    // 创建 ReleaseHistory 对象，并保存
     if (grayReleaseRule != null) {
       releaseOperationContext.put(ReleaseOperationContext.RULES, GrayReleaseRuleItemTransformer
           .batchTransformFromJSON(grayReleaseRule.getRules()));
@@ -393,21 +393,21 @@ public class ReleaseService {
 
     return release;
   }
-
+  // 合并父子 Namespace 的配置 Map
   private Map<String, String> mergeConfiguration(Map<String, String> baseConfigurations,
                                                  Map<String, String> coverConfigurations) {
     Map<String, String> result = new LinkedHashMap<>();
-    //copy base configuration
+    //copy base configuration // 父 Namespace 的配置项
     for (Map.Entry<String, String> entry : baseConfigurations.entrySet()) {
       result.put(entry.getKey(), entry.getValue());
     }
 
-    //update and publish
+    //update and publish // 子 Namespace 的配置项
     for (Map.Entry<String, String> entry : coverConfigurations.entrySet()) {
       result.put(entry.getKey(), entry.getValue());
     }
 
-    return result;
+    return result; // 返回合并后的配置项
   }
 
 
@@ -566,25 +566,25 @@ public class ReleaseService {
           ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY, false, branchReleaseKeys);
     }
   }
-
+  // 计算合并最新父 Namespace 的配置 Map 后，子 Namespace 的配置 Map
   private Map<String, String> calculateChildNamespaceToPublishConfiguration(
       Map<String, String> parentNamespaceOldConfiguration, Map<String, String> parentNamespaceNewConfiguration,
       Map<String, String> childNamespaceLatestActiveConfiguration, Collection<String> branchReleaseKeys) {
     //first. calculate child namespace modified configs
-
+    // 以子 Namespace 的配置 Map 为基础，计算出差异的 Map
     Map<String, String> childNamespaceModifiedConfiguration = calculateBranchModifiedItemsAccordingToRelease(
         parentNamespaceOldConfiguration, childNamespaceLatestActiveConfiguration, branchReleaseKeys);
 
     //second. append child namespace modified configs to parent namespace new latest configuration
     return mergeConfiguration(parentNamespaceNewConfiguration, childNamespaceModifiedConfiguration);
   }
-
+  // 以子 Namespace 的配置 Map 为基础，计算出差异的 Map
   private Map<String, String> calculateBranchModifiedItemsAccordingToRelease(
       Map<String, String> masterReleaseConfigs, Map<String, String> branchReleaseConfigs,
       Collection<String> branchReleaseKeys) {
-
+    // 差异 Map
     Map<String, String> modifiedConfigs = new LinkedHashMap<>();
-
+    // 若子 Namespace 的配置 Map 为空，直接返回空 Map
     if (CollectionUtils.isEmpty(branchReleaseConfigs)) {
       return modifiedConfigs;
     }
@@ -601,10 +601,10 @@ public class ReleaseService {
     }
 
     // old logic, retrieve modified configurations by comparing branchReleaseConfigs with masterReleaseConfigs
-    if (CollectionUtils.isEmpty(masterReleaseConfigs)) {
+    if (CollectionUtils.isEmpty(masterReleaseConfigs)) { // 若父 Namespace 的配置 Map 为空，直接返回子 Namespace 的配置 Map
       return branchReleaseConfigs;
     }
-
+    // 以子 Namespace 的配置 Map 为基础，计算出差异的 Map
     for (Map.Entry<String, String> entry : branchReleaseConfigs.entrySet()) {
 
       if (!Objects.equals(entry.getValue(), masterReleaseConfigs.get(entry.getKey()))) {

@@ -34,10 +34,10 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class ConsumerRole extends BaseEntity {
   @Column(name = "ConsumerId", nullable = false)
-  private long consumerId;
+  private long consumerId; // Consumer 编号 {@link Consumer#id}
 
   @Column(name = "RoleId", nullable = false)
-  private long roleId;
+  private long roleId; // Role 编号 {@link com.ctrip.framework.apollo.portal.entity.po.Role#id}
 
   public long getConsumerId() {
     return consumerId;

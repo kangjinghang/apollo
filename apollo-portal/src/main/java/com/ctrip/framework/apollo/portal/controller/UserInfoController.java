@@ -56,11 +56,11 @@ public class UserInfoController {
     this.userService = userService;
     this.passwordChecker = passwordChecker;
   }
-
+  // 创建或更新 User
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/users")
   public void createOrUpdateUser(@RequestBody UserPO user) {
-    if (StringUtils.isContainEmpty(user.getUsername(), user.getPassword())) {
+    if (StringUtils.isContainEmpty(user.getUsername(), user.getPassword())) { // // 校验 username 、password 非空
       throw new BadRequestException("Username and password can not be empty.");
     }
 
@@ -70,7 +70,7 @@ public class UserInfoController {
     }
 
     if (userService instanceof SpringSecurityUserService) {
-      ((SpringSecurityUserService) userService).createOrUpdate(user);
+      ((SpringSecurityUserService) userService).createOrUpdate(user); // 新增或更新 User
     } else {
       throw new UnsupportedOperationException("Create or update user operation is unsupported");
     }
@@ -80,7 +80,7 @@ public class UserInfoController {
   public UserInfo getCurrentUserName() {
     return userInfoHolder.getUser();
   }
-
+  // User 登出
   @GetMapping("/user/logout")
   public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
     logoutHandler.logout(request, response);

@@ -34,7 +34,7 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class Role extends BaseEntity {
   @Column(name = "RoleName", nullable = false)
-  private String roleName;
+  private String roleName; // 角色名
 
   public String getRoleName() {
     return roleName;

@@ -55,14 +55,14 @@ public class ConsumerController {
                                       @RequestParam(value = "expires", required = false)
                                       @DateTimeFormat(pattern = "yyyyMMddHHmmss") Date
                                           expires) {
-
+    // 校验非空
     if (StringUtils.isContainEmpty(consumer.getAppId(), consumer.getName(),
                                    consumer.getOwnerName(), consumer.getOrgId())) {
       throw new BadRequestException("Params(appId、name、ownerName、orgId) can not be empty.");
     }
-
+    // 创建 Consumer 对象，并保存到数据库中
     Consumer createdConsumer = consumerService.createConsumer(consumer);
-
+    // 创建 ConsumerToken 对象，并保存到数据库中
     if (Objects.isNull(expires)) {
       expires = DEFAULT_EXPIRES;
     }
@@ -84,11 +84,11 @@ public class ConsumerController {
 
     String appId = namespace.getAppId();
     String namespaceName = namespace.getNamespaceName();
-
+    // 校验 appId 非空。若为空，抛出 BadRequestException 异常
     if (StringUtils.isEmpty(appId)) {
       throw new BadRequestException("Params(AppId) can not be empty.");
     }
-    if (Objects.equals("AppRole", type)) {
+    if (Objects.equals("AppRole", type)) { // 授权 App 的 Role 给 Consumer
       return Collections.singletonList(consumerService.assignAppRoleToConsumer(token, appId));
     }
     if (StringUtils.isEmpty(namespaceName)) {
@@ -107,7 +107,7 @@ public class ConsumerController {
         }
         envList.add(env);
       }
-
+      // 授权 Namespace 的 Role 给 Consumer
       List<ConsumerRole> consumeRoles = new ArrayList<>();
       for (String env : envList) {
         consumeRoles.addAll(consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName, env));

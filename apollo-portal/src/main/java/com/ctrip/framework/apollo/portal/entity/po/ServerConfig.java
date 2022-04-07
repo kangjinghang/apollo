@@ -36,14 +36,14 @@ import javax.persistence.Table;
 public class ServerConfig extends BaseEntity {
   @NotBlank(message = "ServerConfig.Key cannot be blank")
   @Column(name = "Key", nullable = false)
-  private String key;
+  private String key; // KEY
 
   @NotBlank(message = "ServerConfig.Value cannot be blank")
   @Column(name = "Value", nullable = false)
-  private String value;
+  private String value; // VALUE
 
   @Column(name = "Comment", nullable = false)
-  private String comment;
+  private String comment; // 备注
 
   public String getKey() {
     return key;

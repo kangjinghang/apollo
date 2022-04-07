@@ -35,17 +35,17 @@ public class UserPO {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
-  private long id;
+  private long id; // 编号
   @Column(name = "Username", nullable = false)
-  private String username;
+  private String username; // 账号
   @Column(name = "UserDisplayName", nullable = false)
   private String userDisplayName;
   @Column(name = "Password", nullable = false)
-  private String password;
+  private String password; // 密码
   @Column(name = "Email", nullable = false)
-  private String email;
+  private String email; // 邮箱
   @Column(name = "Enabled", nullable = false)
-  private int enabled;
+  private int enabled; // 是否开启
 
   public long getId() {
     return id;
