@@ -31,15 +31,15 @@ import org.springframework.core.MethodParameter;
  */
 public class SpringValue {
 
-  private MethodParameter methodParameter;
+  private MethodParameter methodParameter; // Spring 方法参数封装
   private Field field;
   private WeakReference<Object> beanRef;
-  private String beanName;
-  private String key;
-  private String placeholder;
-  private Class<?> targetType;
-  private Type genericType;
-  private boolean isJson;
+  private String beanName; // Bean 名字
+  private String key; // KEY。即在 Config 中的属性 KEY
+  private String placeholder; // 占位符
+  private Class<?> targetType; // 值类型
+  private Type genericType; // 泛型。当是 JSON 类型时，使用
+  private boolean isJson; // 是否 JSON
 
   public SpringValue(String key, String placeholder, Object bean, String beanName, Field field, boolean isJson) {
     this.beanRef = new WeakReference<>(bean);
@@ -47,7 +47,7 @@ public class SpringValue {
     this.field = field;
     this.key = key;
     this.placeholder = placeholder;
-    this.targetType = field.getType();
+    this.targetType = field.getType(); // Field 差异
     this.isJson = isJson;
     if(isJson){
       this.genericType = field.getGenericType();
@@ -61,7 +61,7 @@ public class SpringValue {
     this.key = key;
     this.placeholder = placeholder;
     Class<?>[] paramTps = method.getParameterTypes();
-    this.targetType = paramTps[0];
+    this.targetType = paramTps[0]; // Method 差异
     this.isJson = isJson;
     if(isJson){
       this.genericType = method.getGenericParameterTypes()[0];
@@ -69,9 +69,9 @@ public class SpringValue {
   }
 
   public void update(Object newVal) throws IllegalAccessException, InvocationTargetException {
-    if (isField()) {
+    if (isField()) { // Field
       injectField(newVal);
-    } else {
+    } else { // Method
       injectMethod(newVal);
     }
   }

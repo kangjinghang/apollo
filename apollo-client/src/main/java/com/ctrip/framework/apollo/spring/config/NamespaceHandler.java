@@ -41,7 +41,7 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
   }
 
   static class BeanParser extends AbstractSingleBeanDefinitionParser {
-
+    // 返回 Bean 对应的类为 ConfigPropertySourcesProcessor
     @Override
     protected Class<?> getBeanClass(Element element) {
       return ConfigPropertySourcesProcessor.class;
@@ -60,13 +60,13 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
       }
       return SystemPropertyUtils.resolvePlaceholders(namespaces);
     }
-
+    // 解析 XML 配置
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder builder) {
-      String namespaces = this.resolveNamespaces(element);
+      String namespaces = this.resolveNamespaces(element); // 解析 namespaces 属性，默认为 "application"
 
       int order = Ordered.LOWEST_PRECEDENCE;
-      String orderAttribute = element.getAttribute("order");
+      String orderAttribute = element.getAttribute("order"); // 解析 order 属性，默认为 Ordered.LOWEST_PRECEDENCE
 
       if (!Strings.isNullOrEmpty(orderAttribute)) {
         try {
@@ -76,7 +76,7 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
               String.format("Invalid order: %s for namespaces: %s", orderAttribute, namespaces));
         }
       }
-      PropertySourcesProcessor.addNamespaces(NAMESPACE_SPLITTER.splitToList(namespaces), order);
+      PropertySourcesProcessor.addNamespaces(NAMESPACE_SPLITTER.splitToList(namespaces), order); // 添加到 PropertySourcesProcessor
     }
   }
 }

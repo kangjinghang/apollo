@@ -73,7 +73,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  *  This would be very helpful when your logging configurations is set by Apollo.
  *
  *  for example, you have defined logback-spring.xml in your project, and you want to inject some attributes into logback-spring.xml.
- *
+ * 实现 ApplicationContextInitializer 接口，在 Spring Boot 启动阶段( bootstrap phase )，注入配置的 Apollo Config 对象们
  */
 public class ApolloApplicationContextInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> , EnvironmentPostProcessor, Ordered {
@@ -100,7 +100,7 @@ public class ApolloApplicationContextInitializer implements
   @Override
   public void initialize(ConfigurableApplicationContext context) {
     ConfigurableEnvironment environment = context.getEnvironment();
-
+    // 获得 "apollo.bootstrap.enabled" 配置项，若未开启，忽略
     if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false)) {
       logger.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", context, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
       return;
@@ -117,17 +117,17 @@ public class ApolloApplicationContextInitializer implements
    * @param environment
    */
   protected void initialize(ConfigurableEnvironment environment) {
-
+    // 忽略，若已经有 APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME 的 PropertySource
     if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
       //already initialized, replay the logs that were printed before the logging system was initialized
       DeferredLogger.replayTo();
       return;
     }
-
+    // 获得 "apollo.bootstrap.namespaces" 配置项
     String namespaces = environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_NAMESPACES, ConfigConsts.NAMESPACE_APPLICATION);
     logger.debug("Apollo bootstrap namespaces: {}", namespaces);
     List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespaces);
-
+    // 按照优先级，顺序遍历 Namespace
     CompositePropertySource composite;
     final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     if (configUtil.isPropertyNamesCacheEnabled()) {
@@ -136,11 +136,11 @@ public class ApolloApplicationContextInitializer implements
       composite = new CompositePropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
     }
     for (String namespace : namespaceList) {
-      Config config = ConfigService.getConfig(namespace);
-
+      Config config = ConfigService.getConfig(namespace); // 创建 Apollo Config 对象
+      // 创建 Namespace 对应的 ConfigPropertySource 对象，添加到 composite 中。
       composite.addPropertySource(configPropertySourceFactory.getConfigPropertySource(namespace, config));
     }
-
+    // 添加到 environment 中，且优先级最高
     environment.getPropertySources().addFirst(composite);
   }
 

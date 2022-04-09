@@ -29,7 +29,7 @@ import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.util.yaml.YamlParser;
 
-/**
+/** 实现 PlainTextConfigFile 抽象类，类型为 .yaml 的 ConfigFile 实现类
  * @author Jason Song(song_s@ctrip.com)
  */
 public class YamlConfigFile extends PlainTextConfigFile implements PropertiesCompatibleConfigFile {

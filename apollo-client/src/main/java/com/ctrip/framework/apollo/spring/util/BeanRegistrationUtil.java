@@ -43,13 +43,13 @@ public class BeanRegistrationUtil {
       Class<?> beanClass) {
     return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
   }
-
+  // 注册 beanClass 到 BeanDefinitionRegistry 中，当且仅当 beanName 和 beanClass 都不存在对应的 BeanDefinition 时
   public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
                                                           Class<?> beanClass, Map<String, Object> extraPropertyValues) {
-    if (registry.containsBeanDefinition(beanName)) {
+    if (registry.containsBeanDefinition(beanName)) {  // 不存在 beanName 对应的 BeanDefinition
       return false;
     }
-
+    // 不存在 beanClass 对应的 BeanDefinition
     String[] candidates = registry.getBeanDefinitionNames();
 
     String reservedBeanDefinition = RESERVED_BEAN_DEFINITIONS.get(beanClass.getName());
@@ -66,7 +66,7 @@ public class BeanRegistrationUtil {
         }
       }
     }
-
+    // 注册 beanClass 到 BeanDefinitionRegistry 中
     BeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
 
     if (extraPropertyValues != null) {

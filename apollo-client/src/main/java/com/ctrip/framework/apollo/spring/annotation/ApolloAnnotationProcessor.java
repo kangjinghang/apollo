@@ -47,7 +47,7 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * Apollo Annotation Processor for Spring Application
- *
+ * 实现 BeanFactoryAware 接口，继承 ApolloProcessor 抽象类，处理 @ApolloConfig 和 @ApolloConfigChangeListener 注解处理器的初始化
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFactoryAware,
@@ -72,19 +72,19 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     placeholderHelper = SpringInjector.getInstance(PlaceholderHelper.class);
     springValueRegistry = SpringInjector.getInstance(SpringValueRegistry.class);
   }
-
+  // 处理标注了 @ApolloConfig 和 @ApolloJsonValue 的属性
   @Override
   protected void processField(Object bean, String beanName, Field field) {
     this.processApolloConfig(bean, field);
     this.processApolloJsonValue(bean, beanName, field);
   }
-
+  // 处理标注了 @ApolloConfig 和 @ApolloJsonValue 的方法
   @Override
   protected void processMethod(final Object bean, String beanName, final Method method) {
     this.processApolloConfigChangeListener(bean, method);
     this.processApolloJsonValue(bean, beanName, method);
   }
-
+  // 只处理 @ApolloConfig 标注的属性
   private void processApolloConfig(Object bean, Field field) {
     ApolloConfig annotation = AnnotationUtils.getAnnotation(field, ApolloConfig.class);
     if (annotation == null) {
@@ -96,12 +96,12 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
 
     final String namespace = annotation.value();
     final String resolvedNamespace = this.environment.resolveRequiredPlaceholders(namespace);
-    Config config = ConfigService.getConfig(resolvedNamespace);
-
+    Config config = ConfigService.getConfig(resolvedNamespace);  // 创建 Config 对象
+    // 设置 Config 对象，到对应的 Field
     ReflectionUtils.makeAccessible(field);
     ReflectionUtils.setField(field, bean, config);
   }
-
+  // 只处理标注了 @ApolloConfigChangeListener 的方法
   private void processApolloConfigChangeListener(final Object bean, final Method method) {
     ApolloConfigChangeListener annotation = AnnotationUtils
         .findAnnotation(method, ApolloConfigChangeListener.class);
@@ -115,7 +115,7 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     Preconditions.checkArgument(ConfigChangeEvent.class.isAssignableFrom(parameterTypes[0]),
         "Invalid parameter type: %s for method: %s, should be ConfigChangeEvent", parameterTypes[0],
         method);
-
+    // 创建 ConfigChangeListener 监听器。该监听器会调用被注解的方法
     ReflectionUtils.makeAccessible(method);
     String[] namespaces = annotation.value();
     String[] annotatedInterestedKeys = annotation.interestedKeys();
@@ -123,7 +123,7 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     ConfigChangeListener configChangeListener = new ConfigChangeListener() {
       @Override
       public void onChange(ConfigChangeEvent changeEvent) {
-        ReflectionUtils.invokeMethod(method, bean, changeEvent);
+        ReflectionUtils.invokeMethod(method, bean, changeEvent); // 匿名内部类使用外部的final参数
       }
     };
 
@@ -132,7 +132,7 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     Set<String> interestedKeyPrefixes =
         annotatedInterestedKeyPrefixes.length > 0 ? Sets.newHashSet(annotatedInterestedKeyPrefixes)
             : null;
-
+    // 向指定 Namespace 的 Config 对象们，注册该监听器
     for (String namespace : namespaces) {
       final String resolvedNamespace = this.environment.resolveRequiredPlaceholders(namespace);
       Config config = ConfigService.getConfig(resolvedNamespace);
@@ -145,30 +145,30 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     }
   }
 
-
+  // 只处理 @ApolloJsonValue 标注的属性
   private void processApolloJsonValue(Object bean, String beanName, Field field) {
     ApolloJsonValue apolloJsonValue = AnnotationUtils.getAnnotation(field, ApolloJsonValue.class);
     if (apolloJsonValue == null) {
       return;
     }
-    String placeholder = apolloJsonValue.value();
-    Object propertyValue = placeholderHelper
+    String placeholder = apolloJsonValue.value(); // 获得 Placeholder 表达式
+    Object propertyValue = placeholderHelper // 解析对应的值
         .resolvePropertyValue(this.configurableBeanFactory, beanName, placeholder);
 
     // propertyValue will never be null, as @ApolloJsonValue will not allow that
-    if (!(propertyValue instanceof String)) {
+    if (!(propertyValue instanceof String)) {  // 忽略，非 String 值
       return;
     }
-
+    // 设置到 Field 中
     boolean accessible = field.isAccessible();
     field.setAccessible(true);
     ReflectionUtils
         .setField(field, bean, parseJsonValue((String) propertyValue, field.getGenericType()));
     field.setAccessible(accessible);
-
+    // 是否开启自动更新机制
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
-      Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeholder);
-      for (String key : keys) {
+      Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeholder); // 提取 keys 属性们
+      for (String key : keys) { // 循环 keys ，创建对应的 SpringValue 对象，并添加到 springValueRegistry 中
         SpringValue springValue = new SpringValue(key, placeholder, bean, beanName, field, true);
         springValueRegistry.register(this.configurableBeanFactory, key, springValue);
         logger.debug("Monitoring {}", springValue);
@@ -181,13 +181,13 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     if (apolloJsonValue == null) {
       return;
     }
-    String placeHolder = apolloJsonValue.value();
-
+    String placeHolder = apolloJsonValue.value(); // 获得 Placeholder 表达式
+    // 解析对应的值
     Object propertyValue = placeholderHelper
         .resolvePropertyValue(this.configurableBeanFactory, beanName, placeHolder);
 
     // propertyValue will never be null, as @ApolloJsonValue will not allow that
-    if (!(propertyValue instanceof String)) {
+    if (!(propertyValue instanceof String)) { // 忽略，非 String 值
       return;
     }
 
@@ -195,15 +195,15 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     Preconditions.checkArgument(types.length == 1,
         "Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
         bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
-
+    // 调用 Method ，设置值
     boolean accessible = method.isAccessible();
     method.setAccessible(true);
     ReflectionUtils.invokeMethod(method, bean, parseJsonValue((String) propertyValue, types[0]));
     method.setAccessible(accessible);
-
+    // 是否开启自动更新机制
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
-      Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder);
-      for (String key : keys) {
+      Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder); // 提取 keys 属性们
+      for (String key : keys) { // 循环 keys ，创建对应的 SpringValue 对象，并添加到 springValueRegistry 中
         SpringValue springValue = new SpringValue(key, apolloJsonValue.value(), bean, beanName,
             method, true);
         springValueRegistry.register(this.configurableBeanFactory, key, springValue);

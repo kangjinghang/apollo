@@ -55,7 +55,7 @@ import com.google.common.collect.Maps;
  *
  * @see com.ctrip.framework.apollo.core.internals.LegacyMetaServerProvider
  */
-public class MetaDomainConsts {
+public class MetaDomainConsts { // Meta Service 多环境的地址枚举类
 
   public static final String DEFAULT_META_URL = "http://apollo.meta";
 

@@ -38,16 +38,16 @@ import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.google.common.collect.Lists;
 
-/**
+/** 实现 ConfigFile、RepositoryChangeListener 接口，ConfigFile 抽象类，实现了 1）异步通知监听器、2）计算属性变化等等特性，是 AbstractConfig + DefaultConfig 的功能子集
  * @author Jason Song(song_s@ctrip.com)
  */
 public abstract class AbstractConfigFile implements ConfigFile, RepositoryChangeListener {
   private static final Logger logger = DeferredLoggerFactory.getLogger(AbstractConfigFile.class);
-  private static ExecutorService m_executorService;
+  private static ExecutorService m_executorService; // ExecutorService 对象，用于配置变化时，异步通知 ConfigChangeListener 监听器们。静态属性，所有 Config 共享该线程池。
   protected final ConfigRepository m_configRepository;
-  protected final String m_namespace;
-  protected final AtomicReference<Properties> m_configProperties;
-  private final List<ConfigFileChangeListener> m_listeners = Lists.newCopyOnWriteArrayList();
+  protected final String m_namespace; // Namespace 的名字
+  protected final AtomicReference<Properties> m_configProperties; // 配置 Properties 的缓存引用
+  private final List<ConfigFileChangeListener> m_listeners = Lists.newCopyOnWriteArrayList(); // ConfigChangeListener 集合
   protected final PropertiesFactory propertiesFactory;
 
   private volatile ConfigSourceType m_sourceType = ConfigSourceType.NONE;
@@ -62,12 +62,12 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
     m_namespace = namespace;
     m_configProperties = new AtomicReference<>();
     propertiesFactory = ApolloInjector.getInstance(PropertiesFactory.class);
-    initialize();
+    initialize(); // 初始化
   }
 
   private void initialize() {
     try {
-      m_configProperties.set(m_configRepository.getConfig());
+      m_configProperties.set(m_configRepository.getConfig()); // 初始化 m_configProperties
       m_sourceType = m_configRepository.getSourceType();
     } catch (Throwable ex) {
       Tracer.logError(ex);
@@ -76,32 +76,32 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
     } finally {
       //register the change listener no matter config repository is working or not
       //so that whenever config repository is recovered, config could get changed
-      m_configRepository.addChangeListener(this);
+      m_configRepository.addChangeListener(this); // // 注册到 ConfigRepository 中，从而实现每次配置发生变更时，更新配置缓存 m_configProperties
     }
   }
-
+  // 获得 Namespace 名字
   @Override
   public String getNamespace() {
     return m_namespace;
   }
 
   protected abstract void update(Properties newProperties);
-
+  // 当 ConfigRepository 读取到配置发生变更时，计算配置变更集合，并通知监听器们
   @Override
   public synchronized void onRepositoryChange(String namespace, Properties newProperties) {
-    if (newProperties.equals(m_configProperties.get())) {
+    if (newProperties.equals(m_configProperties.get())) { // 忽略，若未变更
       return;
     }
-    Properties newConfigProperties = propertiesFactory.getPropertiesInstance();
+    Properties newConfigProperties = propertiesFactory.getPropertiesInstance(); // 读取新的 Properties 对象
     newConfigProperties.putAll(newProperties);
-
+    // 获得【旧】值
     String oldValue = getContent();
-
-    update(newProperties);
+    // 更新为【新】值
+    update(newProperties); // 抽象方法，更新为【新】值。该方法需要子类自己去实现
     m_sourceType = m_configRepository.getSourceType();
-
+    // 获得新值
     String newValue = getContent();
-
+    // 计算变化类型
     PropertyChangeType changeType = PropertyChangeType.MODIFIED;
 
     if (oldValue == null) {
@@ -109,7 +109,7 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
     } else if (newValue == null) {
       changeType = PropertyChangeType.DELETED;
     }
-
+    // 通知监听器们
     this.fireConfigChange(new ConfigFileChangeEvent(m_namespace, oldValue, newValue, changeType));
 
     Tracer.logEvent("Apollo.Client.ConfigChanges", m_namespace);
@@ -131,7 +131,7 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
   public ConfigSourceType getSourceType() {
     return m_sourceType;
   }
-
+  // 触发配置变更监听器们
   private void fireConfigChange(final ConfigFileChangeEvent changeEvent) {
     for (final ConfigFileChangeListener listener : m_listeners) {
       m_executorService.submit(new Runnable() {
@@ -140,7 +140,7 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
           String listenerName = listener.getClass().getName();
           Transaction transaction = Tracer.newTransaction("Apollo.ConfigFileChangeListener", listenerName);
           try {
-            listener.onChange(changeEvent);
+            listener.onChange(changeEvent); // 通知监听器
             transaction.setStatus(Transaction.SUCCESS);
           } catch (Throwable ex) {
             transaction.setStatus(ex);

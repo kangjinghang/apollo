@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-/**
+/** 默认 ConfigFactory 管理器实现类
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultConfigRegistry implements ConfigRegistry {
@@ -32,7 +32,7 @@ public class DefaultConfigRegistry implements ConfigRegistry {
 
   @Override
   public void register(String namespace, ConfigFactory factory) {
-    if (m_instances.containsKey(namespace)) {
+    if (m_instances.containsKey(namespace)) { // 覆盖的情况，打印警告日志
       s_logger.warn("ConfigFactory({}) is overridden by {}!", namespace, factory.getClass());
     }
 

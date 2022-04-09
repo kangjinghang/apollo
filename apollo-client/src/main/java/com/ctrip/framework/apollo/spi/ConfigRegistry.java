@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.spi;
 
 /**
  * The manually config registry, use with caution!
- *
+ * Config 注册表接口
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface ConfigRegistry {

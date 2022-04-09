@@ -48,7 +48,7 @@ public class ApolloEurekaClientConfig extends EurekaClientConfigBean {
    */
   public List<String> getEurekaServerServiceUrls(String myZone) {
     List<String> urls = bizConfig.eurekaServiceUrls();
-    return CollectionUtils.isEmpty(urls) ? super.getEurekaServerServiceUrls(myZone) : urls;
+    return CollectionUtils.isEmpty(urls) ? super.getEurekaServerServiceUrls(myZone) : urls; // 获得 Eureka Server 地址
   }
 
   @EventListener

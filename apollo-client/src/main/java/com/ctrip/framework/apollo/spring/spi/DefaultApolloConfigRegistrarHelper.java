@@ -43,26 +43,26 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
     AnnotationAttributes attributes = AnnotationAttributes
-        .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
+        .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName())); // 解析 @EnableApolloConfig 注解
     final String[] namespaces = attributes.getStringArray("value");
     final int order = attributes.getNumber("order");
     final String[] resolvedNamespaces = this.resolveNamespaces(namespaces);
-    PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
+    PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order); // 添加到 PropertySourcesProcessor 中
 
     Map<String, Object> propertySourcesPlaceholderPropertyValues = new HashMap<>();
     // to make sure the default PropertySourcesPlaceholderConfigurer's priority is higher than PropertyPlaceholderConfigurer
     propertySourcesPlaceholderPropertyValues.put("order", 0);
-
+    // 注册 PropertySourcesPlaceholderConfigurer 到 BeanDefinitionRegistry 中，替换 PlaceHolder 为对应的属性值，参考文章 https://leokongwq.github.io/2016/12/28/spring-PropertyPlaceholderConfigurer.html
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class.getName(),
         PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class.getName(),
-        PropertySourcesProcessor.class);
+        PropertySourcesProcessor.class); //【差异】注册 PropertySourcesProcessor 到 BeanDefinitionRegistry 中，因为可能存在 XML 配置的 Bean ，用于 PlaceHolder 自动更新机制
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class.getName(),
-        ApolloAnnotationProcessor.class);
+        ApolloAnnotationProcessor.class); // 注册 ApolloAnnotationProcessor 到 BeanDefinitionRegistry 中，解析 @ApolloConfig 和 @ApolloConfigChangeListener 注解
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class.getName(),
-        SpringValueProcessor.class);
+        SpringValueProcessor.class);  // 注册 SpringValueProcessor 到 BeanDefinitionRegistry 中，用于 PlaceHolder 自动更新机制
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueDefinitionProcessor.class.getName(),
-        SpringValueDefinitionProcessor.class);
+        SpringValueDefinitionProcessor.class); //【差异】注册 SpringValueDefinitionProcessor 到 BeanDefinitionRegistry 中，因为可能存在 XML 配置的 Bean ，用于 PlaceHolder 自动更新机制
   }
 
   private String[] resolveNamespaces(String[] namespaces) {

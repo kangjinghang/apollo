@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 public class ServiceBootstrap {
-  public static <S> S loadFirst(Class<S> clazz) {
+  public static <S> S loadFirst(Class<S> clazz) { // 加载指定服务的首个对象
     Iterator<S> iterator = loadAll(clazz);
     if (!iterator.hasNext()) {
       throw new IllegalStateException(String.format(
@@ -35,7 +35,7 @@ public class ServiceBootstrap {
     return iterator.next();
   }
 
-  public static <S> Iterator<S> loadAll(Class<S> clazz) {
+  public static <S> Iterator<S> loadAll(Class<S> clazz) { //  基于 JDK SPI ，加载指定类的所有对象
     ServiceLoader<S> loader = ServiceLoader.load(clazz);
 
     return loader.iterator();

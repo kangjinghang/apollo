@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-/**
+/** 注入器接口
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface Injector {

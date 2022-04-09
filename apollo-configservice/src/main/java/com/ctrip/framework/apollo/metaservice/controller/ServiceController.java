@@ -43,14 +43,14 @@ public class ServiceController {
   public List<ServiceDTO> getMetaService() {
     return Collections.emptyList();
   }
-
+  // 调用 DiscoveryService 调用对应的方法，获取 apollo-configservice 服务集群
   @RequestMapping("/config")
   public List<ServiceDTO> getConfigService(
       @RequestParam(value = "appId", defaultValue = "") String appId,
       @RequestParam(value = "ip", required = false) String clientIp) {
     return discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE);
   }
-
+  // 调用 DiscoveryService 调用对应的方法，获取 apollo-adminservice 服务集群
   @RequestMapping("/admin")
   public List<ServiceDTO> getAdminService() {
     return discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE);

@@ -63,13 +63,13 @@ public class BizConfig extends RefreshableConfig {
   protected List<RefreshablePropertySource> getRefreshablePropertySources() {
     return Collections.singletonList(propertySource);
   }
-
+  // 获得 Eureka 服务器地址的数组
   public List<String> eurekaServiceUrls() {
-    String configuration = getValue("eureka.service.url", "");
+    String configuration = getValue("eureka.service.url", ""); // 获得配置值
     if (Strings.isNullOrEmpty(configuration)) {
       return Collections.emptyList();
     }
-
+    // 分隔成 List
     return splitter.splitToList(configuration);
   }
 

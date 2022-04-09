@@ -26,32 +26,32 @@ import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.ConfigFactoryManager;
 import com.google.common.collect.Maps;
 
-/**
+/** 默认配置管理器实现类
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultConfigManager implements ConfigManager {
   private ConfigFactoryManager m_factoryManager;
 
-  private Map<String, Config> m_configs = Maps.newConcurrentMap();
-  private Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap();
+  private Map<String, Config> m_configs = Maps.newConcurrentMap(); // Config 对象的缓存
+  private Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap(); // ConfigFile 对象的缓存
 
   public DefaultConfigManager() {
     m_factoryManager = ApolloInjector.getInstance(ConfigFactoryManager.class);
   }
 
-  @Override
+  @Override // 获得 Config 对象
   public Config getConfig(String namespace) {
-    Config config = m_configs.get(namespace);
-
+    Config config = m_configs.get(namespace); // 获得 Config 对象
+    // 若不存在，进行创建
     if (config == null) {
       synchronized (this) {
-        config = m_configs.get(namespace);
+        config = m_configs.get(namespace); // 获得 Config 对象
 
         if (config == null) {
-          ConfigFactory factory = m_factoryManager.getFactory(namespace);
-
+          ConfigFactory factory = m_factoryManager.getFactory(namespace); // 获得对应的 ConfigFactory 对象
+          // 创建 Config 对象
           config = factory.create(namespace);
-          m_configs.put(namespace, config);
+          m_configs.put(namespace, config);  // 添加到缓存
         }
       }
     }
@@ -61,18 +61,18 @@ public class DefaultConfigManager implements ConfigManager {
 
   @Override
   public ConfigFile getConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-    String namespaceFileName = String.format("%s.%s", namespace, configFileFormat.getValue());
-    ConfigFile configFile = m_configFiles.get(namespaceFileName);
+    String namespaceFileName = String.format("%s.%s", namespace, configFileFormat.getValue()); // 拼接 Namespace 名字
+    ConfigFile configFile = m_configFiles.get(namespaceFileName); // 将 ConfigFileFormat 拼接到 namespace 中
 
-    if (configFile == null) {
+    if (configFile == null) { // 若不存在，进行创建
       synchronized (this) {
-        configFile = m_configFiles.get(namespaceFileName);
+        configFile = m_configFiles.get(namespaceFileName);  // 获得 ConfigFile 对象
 
-        if (configFile == null) {
-          ConfigFactory factory = m_factoryManager.getFactory(namespaceFileName);
-
+        if (configFile == null) { // 若不存在，进行创建
+          ConfigFactory factory = m_factoryManager.getFactory(namespaceFileName); // 获得对应的 ConfigFactory 对象
+          // 创建 ConfigFile 对象
           configFile = factory.createConfigFile(namespaceFileName, configFileFormat);
-          m_configFiles.put(namespaceFileName, configFile);
+          m_configFiles.put(namespaceFileName, configFile); // 添加到缓存
         }
       }
     }

@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.internals;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import java.util.Properties;
 
-/**
+/** 纯文本 ConfigFile 抽象类，例如 xml yaml 等等
  * @author Jason Song(song_s@ctrip.com)
  */
 public abstract class PlainTextConfigFile extends AbstractConfigFile {
@@ -35,7 +35,7 @@ public abstract class PlainTextConfigFile extends AbstractConfigFile {
     }
     return m_configProperties.get().getProperty(ConfigConsts.CONFIG_FILE_CONTENT_KEY);
   }
-
+  // 直接从 "content" 配置项，获得配置文本。这也是为什么类名以 PlainText 开头的原因
   @Override
   public boolean hasContent() {
     if (m_configProperties.get() == null) {

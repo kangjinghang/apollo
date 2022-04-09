@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 
-/**
+/** Config 和 ConfigFile 的管理器
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface ConfigManager {

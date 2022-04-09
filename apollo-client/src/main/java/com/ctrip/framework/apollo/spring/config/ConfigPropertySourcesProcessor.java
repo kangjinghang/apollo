@@ -23,8 +23,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
 /**
- * Apollo Property Sources processor for Spring XML Based Application
- *
+ * Apollo Property Sources processor for Spring XML Based Application。 用于处理 Spring XML 的配置
+ * 实现 BeanDefinitionRegistryPostProcessor 接口，继承 PropertySourcesProcessor 类，Apollo PropertySource 处理器
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigPropertySourcesProcessor extends PropertySourcesProcessor

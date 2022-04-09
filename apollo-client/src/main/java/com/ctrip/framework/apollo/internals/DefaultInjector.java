@@ -39,7 +39,7 @@ import com.google.inject.Singleton;
 import java.util.List;
 
 /**
- * Guice injector
+ * Guice injector. 实现 DefaultInjector 接口，基于 Guice 的注入器实现类
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultInjector implements Injector {

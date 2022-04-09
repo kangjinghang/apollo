@@ -21,19 +21,19 @@ import com.ctrip.framework.apollo.internals.Injector;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.foundation.internals.ServiceBootstrap;
 
-/**
+/** Apollo 注入器，实现依赖注入( DI，全称“Dependency Injection” )
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloInjector {
-  private static volatile Injector s_injector;
-  private static final Object lock = new Object();
+  private static volatile Injector s_injector; // 注入器
+  private static final Object lock = new Object(); // 锁
 
   private static Injector getInjector() {
-    if (s_injector == null) {
+    if (s_injector == null) {  // 若 Injector 不存在，则进行获得
       synchronized (lock) {
-        if (s_injector == null) {
+        if (s_injector == null) { // 若 Injector 不存在，则进行获得
           try {
-            s_injector = ServiceBootstrap.loadFirst(Injector.class);
+            s_injector = ServiceBootstrap.loadFirst(Injector.class); // 基于 JDK SPI 加载对应的 Injector 实现对象
           } catch (Throwable ex) {
             ApolloConfigException exception = new ApolloConfigException("Unable to initialize Apollo Injector!", ex);
             Tracer.logError(exception);

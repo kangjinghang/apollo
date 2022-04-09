@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A change event when a namespace's config is changed.
+ * A change event when a namespace's config is changed. Config 变化事件
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigChangeEvent {
-  private final String m_namespace;
-  private final Map<String, ConfigChange> m_changes;
+  private final String m_namespace; // Namespace 名字
+  private final Map<String, ConfigChange> m_changes; // 变化属性的集合。KEY：属性名。VALUE：配置变化
   /**
    * Constructor.
    * @param namespace the namespace of this change

@@ -47,7 +47,7 @@ public class PlaceholderHelper {
   public Object resolvePropertyValue(ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
     // resolve string value
     String strVal = beanFactory.resolveEmbeddedValue(placeholder);
-
+    // 获得 BeanDefinition 对象
     BeanDefinition bd = (beanFactory.containsBean(beanName) ? beanFactory
         .getMergedBeanDefinition(beanName) : null);
 

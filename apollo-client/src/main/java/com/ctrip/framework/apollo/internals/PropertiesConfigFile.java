@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PropertiesConfigFile extends AbstractConfigFile implements
     PropertiesCompatibleConfigFile {
-
+  // 配置字符串缓存
   protected AtomicReference<String> m_contentCache;
 
   public PropertiesConfigFile(String namespace,
@@ -44,16 +44,16 @@ public class PropertiesConfigFile extends AbstractConfigFile implements
 
   @Override
   protected void update(Properties newProperties) {
-    m_configProperties.set(newProperties);
-    m_contentCache.set(null);
+    m_configProperties.set(newProperties); // 设置【新】Properties
+    m_contentCache.set(null); // 清空缓存
   }
 
   @Override
   public String getContent() {
-    if (m_contentCache.get() == null) {
+    if (m_contentCache.get() == null) { // 更新到缓存
       m_contentCache.set(doGetContent());
     }
-    return m_contentCache.get();
+    return m_contentCache.get(); // 从缓存中，获得配置字符串
   }
 
   String doGetContent() {
@@ -62,7 +62,7 @@ public class PropertiesConfigFile extends AbstractConfigFile implements
     }
 
     try {
-      return PropertiesUtil.toString(m_configProperties.get());
+      return PropertiesUtil.toString(m_configProperties.get()); // 拼接 KV 属性，成字符串
     } catch (Throwable ex) {
       ApolloConfigException exception =
           new ApolloConfigException(String

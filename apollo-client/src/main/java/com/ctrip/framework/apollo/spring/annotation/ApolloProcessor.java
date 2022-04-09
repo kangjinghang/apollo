@@ -26,7 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.util.ReflectionUtils;
 
-/**
+/** 实现 BeanPostProcessor、PriorityOrdered 接口，Apollo 处理器抽象类，封装了在 Spring Bean 初始化之前，处理属性和方法
  * Create by zhangzheng on 2018/2/6
  */
 public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrdered {
@@ -35,10 +35,10 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
   public Object postProcessBeforeInitialization(Object bean, String beanName)
       throws BeansException {
     Class clazz = bean.getClass();
-    for (Field field : findAllField(clazz)) {
+    for (Field field : findAllField(clazz)) { // 处理所有 Field
       processField(bean, beanName, field);
     }
-    for (Method method : findAllMethod(clazz)) {
+    for (Method method : findAllMethod(clazz)) { // 处理所有的 Method
       processMethod(bean, beanName, method);
     }
     return bean;
@@ -63,9 +63,9 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
   @Override
   public int getOrder() {
     //make it as late as possible
-    return Ordered.LOWEST_PRECEDENCE;
+    return Ordered.LOWEST_PRECEDENCE;  // 最高优先级
   }
-
+  // 获得所有 Field
   private List<Field> findAllField(Class clazz) {
     final List<Field> res = new LinkedList<>();
     ReflectionUtils.doWithFields(clazz, new ReflectionUtils.FieldCallback() {
@@ -76,7 +76,7 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
     });
     return res;
   }
-
+  // 获得所有 Method
   private List<Method> findAllMethod(Class clazz) {
     final List<Method> res = new LinkedList<>();
     ReflectionUtils.doWithMethods(clazz, new ReflectionUtils.MethodCallback() {

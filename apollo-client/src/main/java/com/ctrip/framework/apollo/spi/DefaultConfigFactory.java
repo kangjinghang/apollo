@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *   <li>{@link ConfigFileFormat#YAML}</li>
  *   <li>{@link ConfigFileFormat#TXT}</li>
  * </ul>
- *
+ * 默认配置工厂实现类
  * @author Jason Song(song_s@ctrip.com)
  * @author Diego Krupitza(info@diegokrupitza.com)
  */
@@ -91,8 +91,8 @@ public class DefaultConfigFactory implements ConfigFactory {
 
   @Override
   public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-    ConfigRepository configRepository = createConfigRepository(namespace);
-    switch (configFileFormat) {
+    ConfigRepository configRepository = createConfigRepository(namespace); // 创建 ConfigRepository 对象
+    switch (configFileFormat) { // 创建对应的 ConfigFile 对象
       case Properties:
         return new PropertiesConfigFile(namespace, configRepository);
       case XML:
@@ -111,10 +111,10 @@ public class DefaultConfigFactory implements ConfigFactory {
   }
 
   ConfigRepository createConfigRepository(String namespace) {
-    if (m_configUtil.isPropertyFileCacheEnabled()) {
+    if (m_configUtil.isPropertyFileCacheEnabled()) { // 本地模式，使用 LocalFileConfigRepository 对象
       return createLocalConfigRepository(namespace);
     }
-    return createRemoteConfigRepository(namespace);
+    return createRemoteConfigRepository(namespace);  // 非本地模式，使用 LocalFileConfigRepository + RemoteConfigRepository 对象
   }
 
   /**

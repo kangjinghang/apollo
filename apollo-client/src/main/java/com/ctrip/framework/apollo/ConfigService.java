@@ -25,42 +25,42 @@ import com.ctrip.framework.apollo.spi.ConfigRegistry;
 
 /**
  * Entry point for client config use
- *
+ * 客户端配置服务，作为配置使用的入口
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigService {
-  private static final ConfigService s_instance = new ConfigService();
+  private static final ConfigService s_instance = new ConfigService(); // 单例
 
   private volatile ConfigManager m_configManager;
   private volatile ConfigRegistry m_configRegistry;
 
   private ConfigManager getManager() {
-    if (m_configManager == null) {
+    if (m_configManager == null) { // 若 ConfigManager 未初始化，进行获得
       synchronized (this) {
         if (m_configManager == null) {
           m_configManager = ApolloInjector.getInstance(ConfigManager.class);
         }
       }
     }
-
+    // 返回 ConfigManager
     return m_configManager;
   }
 
   private ConfigRegistry getRegistry() {
-    if (m_configRegistry == null) {
+    if (m_configRegistry == null) { // 若 ConfigRegistry 未初始化，进行获得
       synchronized (this) {
         if (m_configRegistry == null) {
           m_configRegistry = ApolloInjector.getInstance(ConfigRegistry.class);
         }
       }
     }
-
+    // 返回 ConfigRegistry
     return m_configRegistry;
   }
 
   /**
    * Get Application's config instance.
-   *
+   * 获得 Config 对象
    * @return config instance
    */
   public static Config getAppConfig() {
@@ -76,17 +76,17 @@ public class ConfigService {
   public static Config getConfig(String namespace) {
     return s_instance.getManager().getConfig(namespace);
   }
-
+  // 获得 Namespace 对应的 ConfigFile 对象
   public static ConfigFile getConfigFile(String namespace, ConfigFileFormat configFileFormat) {
     return s_instance.getManager().getConfigFile(namespace, configFileFormat);
   }
-
+  // 设置 Config 对象
   static void setConfig(Config config) {
     setConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
   }
 
   /**
-   * Manually set the config for the namespace specified, use with caution.
+   * manually set the config for the namespace specified, use with caution.
    *
    * @param namespace the namespace
    * @param config    the config instance
@@ -100,12 +100,12 @@ public class ConfigService {
 
       @Override
       public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-        return null;
+        return null; // 空
       }
 
     });
   }
-
+  // 设置 ConfigFactory 对象
   static void setConfigFactory(ConfigFactory factory) {
     setConfigFactory(ConfigConsts.NAMESPACE_APPLICATION, factory);
   }

@@ -18,14 +18,14 @@ package com.ctrip.framework.apollo.model;
 
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
 
-/**
+/** 配置文件改变事件
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigFileChangeEvent {
-  private final String namespace;
-  private final String oldValue;
-  private final String newValue;
-  private final PropertyChangeType changeType;
+  private final String namespace; // Namespace 名字
+  private final String oldValue; // 旧值
+  private final String newValue; // 新值
+  private final PropertyChangeType changeType; // 变化类型
 
   /**
    * Constructor.

@@ -18,9 +18,9 @@ package com.ctrip.framework.apollo.spring.property;
 
 public class SpringValueDefinition {
 
-  private final String key;
-  private final String placeholder;
-  private final String propertyName;
+  private final String key; // KEY。即在 Config 中的属性 KEY
+  private final String placeholder; // 占位符
+  private final String propertyName; // 属性名
 
   public SpringValueDefinition(String key, String placeholder, String propertyName) {
     this.key = key;

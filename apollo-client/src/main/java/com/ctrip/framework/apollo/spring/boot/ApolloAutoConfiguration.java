@@ -23,14 +23,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+// 自动注入 ConfigPropertySourcesProcessor bean 对象，当不存在 PropertySourcesProcessor 时，以实现 Apollo 配置的自动加载
 @Configuration
 @ConditionalOnProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED)
-@ConditionalOnMissingBean(PropertySourcesProcessor.class)
+@ConditionalOnMissingBean(PropertySourcesProcessor.class)  // 缺失 PropertySourcesProcessor 时
 public class ApolloAutoConfiguration {
 
   @Bean
   public ConfigPropertySourcesProcessor configPropertySourcesProcessor() {
-    return new ConfigPropertySourcesProcessor();
+    return new ConfigPropertySourcesProcessor(); // 注入 ConfigPropertySourcesProcessor bean 对象
   }
 }

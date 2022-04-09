@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.internals;
 
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 
-/**
+/** 实现 PlainTextConfigFile 抽象类，类型为 .xml 的 ConfigFile 实现类
  * @author Jason Song(song_s@ctrip.com)
  */
 public class XmlConfigFile extends PlainTextConfigFile {

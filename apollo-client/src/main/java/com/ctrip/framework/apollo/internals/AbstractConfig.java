@@ -47,14 +47,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
+/** 实现 Config 接口，Config 抽象类，实现了1）缓存读取属性值、2）异步通知监听器、3）计算属性变化等等特性
  * @author Jason Song(song_s@ctrip.com)
  */
 public abstract class AbstractConfig implements Config {
   private static final Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
-
+  // ExecutorService 对象，用于配置变化时，异步通知 ConfigChangeListener 监听器们。静态属性，所有 Config 共享该线程池。
   private static final ExecutorService m_executorService;
-
+  // ConfigChangeListener 集合
   private final List<ConfigChangeListener> m_listeners = Lists.newCopyOnWriteArrayList();
   private final Map<ConfigChangeListener, Set<String>> m_interestedKeys = Maps.newConcurrentMap();
   private final Map<ConfigChangeListener, Set<String>> m_interestedKeyPrefixes = Maps.newConcurrentMap();
@@ -68,9 +68,9 @@ public abstract class AbstractConfig implements Config {
   private volatile Cache<String, Boolean> m_booleanCache;
   private volatile Cache<String, Date> m_dateCache;
   private volatile Cache<String, Long> m_durationCache;
-  private final Map<String, Cache<String, String[]>> m_arrayCache;
-  private final List<Cache> allCaches;
-  private final AtomicLong m_configVersion; //indicate config version
+  private final Map<String, Cache<String, String[]>> m_arrayCache; // 数组属性 Cache Map。KEY：分隔符。KEY2：属性键
+  private final List<Cache> allCaches; // 上述 Cache 对象集合
+  private final AtomicLong m_configVersion; //indicate config version. 缓存版本号，用于解决更新缓存可能存在的并发问题。详细见 {@link #getValueAndStoreToCache(String, Function, Cache, Object)} 方法
 
   protected PropertiesFactory propertiesFactory;
 
@@ -86,7 +86,7 @@ public abstract class AbstractConfig implements Config {
     allCaches = Lists.newArrayList();
     propertiesFactory = ApolloInjector.getInstance(PropertiesFactory.class);
   }
-
+  // 添加配置变更监听器
   @Override
   public void addChangeListener(ConfigChangeListener listener) {
     addChangeListener(listener, null);
@@ -120,7 +120,7 @@ public abstract class AbstractConfig implements Config {
   @Override
   public Integer getIntProperty(String key, Integer defaultValue) {
     try {
-      if (m_integerCache == null) {
+      if (m_integerCache == null) { // 初始化缓存
         synchronized (this) {
           if (m_integerCache == null) {
             m_integerCache = newCache();
@@ -128,7 +128,7 @@ public abstract class AbstractConfig implements Config {
         }
       }
 
-      return getValueFromCache(key, Functions.TO_INT_FUNCTION, m_integerCache, defaultValue);
+      return getValueFromCache(key, Functions.TO_INT_FUNCTION, m_integerCache, defaultValue); // 从缓存中，读取属性值
     } catch (Throwable ex) {
       Tracer.logError(new ApolloConfigException(
           String.format("getIntProperty for %s failed, return default value %d", key,
@@ -399,33 +399,33 @@ public abstract class AbstractConfig implements Config {
   }
 
   private <T> T getValueFromCache(String key, Function<String, T> parser, Cache<String, T> cache, T defaultValue) {
-    T result = cache.getIfPresent(key);
+    T result = cache.getIfPresent(key); // 获得属性值
 
-    if (result != null) {
+    if (result != null) { // 若存在，则返回
       return result;
     }
-
+    // 获得值，并更新到缓存
     return getValueAndStoreToCache(key, parser, cache, defaultValue);
   }
 
   private <T> T getValueAndStoreToCache(String key, Function<String, T> parser, Cache<String, T> cache, T defaultValue) {
-    long currentConfigVersion = m_configVersion.get();
-    String value = getProperty(key, null);
+    long currentConfigVersion = m_configVersion.get();  // 获得当前版本号
+    String value = getProperty(key, null); // 获得属性值
 
-    if (value != null) {
-      T result = parser.apply(value);
+    if (value != null) { // 若获得到属性，返回该属性值
+      T result = parser.apply(value);  // 解析属性值
 
       if (result != null) {
         synchronized (this) {
-          if (m_configVersion.get() == currentConfigVersion) {
+          if (m_configVersion.get() == currentConfigVersion) { // 若版本号未变化，则更新到缓存，从而解决并发的问题
             cache.put(key, result);
           }
         }
-        return result;
+        return result; // 返回属性值
       }
     }
 
-    return defaultValue;
+    return defaultValue; // 获得不到属性值，返回默认值
   }
 
   private <T> Cache<String, T> newCache() {
@@ -468,7 +468,7 @@ public abstract class AbstractConfig implements Config {
   }
 
   /**
-   * Fire the listeners by event.
+   * Fire the listeners by event. 触发配置变更监听器们
    */
   protected void fireConfigChange(final ConfigChangeEvent changeEvent) {
     final List<ConfigChangeListener> listeners = this
@@ -566,7 +566,7 @@ public abstract class AbstractConfig implements Config {
 
     return Collections.unmodifiableSet(interestedChangedKeys);
   }
-
+  // 计算配置变更集合
   List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
                                          Properties current) {
     if (previous == null) {
@@ -580,22 +580,22 @@ public abstract class AbstractConfig implements Config {
     Set<String> previousKeys = previous.stringPropertyNames();
     Set<String> currentKeys = current.stringPropertyNames();
 
-    Set<String> commonKeys = Sets.intersection(previousKeys, currentKeys);
-    Set<String> newKeys = Sets.difference(currentKeys, commonKeys);
-    Set<String> removedKeys = Sets.difference(previousKeys, commonKeys);
+    Set<String> commonKeys = Sets.intersection(previousKeys, currentKeys);  // 交集
+    Set<String> newKeys = Sets.difference(currentKeys, commonKeys); // 新集合 - 交集 = 新增
+    Set<String> removedKeys = Sets.difference(previousKeys, commonKeys);// 老集合 - 交集 = 移除
 
     List<ConfigChange> changes = Lists.newArrayList();
-
+    // 计算新增的
     for (String newKey : newKeys) {
       changes.add(new ConfigChange(namespace, newKey, null, current.getProperty(newKey),
           PropertyChangeType.ADDED));
     }
-
+    // 计算移除的
     for (String removedKey : removedKeys) {
       changes.add(new ConfigChange(namespace, removedKey, previous.getProperty(removedKey), null,
           PropertyChangeType.DELETED));
     }
-
+    // 计算修改的
     for (String commonKey : commonKeys) {
       String previousValue = previous.getProperty(commonKey);
       String currentValue = current.getProperty(commonKey);

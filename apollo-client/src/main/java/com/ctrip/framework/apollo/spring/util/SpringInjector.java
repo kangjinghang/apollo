@@ -25,15 +25,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-
+// 不要被类名“欺骗”啦，只是注入集成 Spring 需要做的 DI ，例如 SpringValueRegistry 的单例
 public class SpringInjector {
-  private static volatile Injector s_injector;
-  private static final Object lock = new Object();
+  private static volatile Injector s_injector; // 注入器
+  private static final Object lock = new Object(); // 锁
 
   private static Injector getInjector() {
-    if (s_injector == null) {
+    if (s_injector == null) { // 若 Injector 不存在，则进行获得
       synchronized (lock) {
-        if (s_injector == null) {
+        if (s_injector == null) { // 若 Injector 不存在，则进行获得
           try {
             s_injector = Guice.createInjector(new SpringModule());
           } catch (Throwable ex) {
